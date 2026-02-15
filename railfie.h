@@ -1,0 +1,35 @@
+#ifndef RAILFIE_H
+#define RAILFIE_H
+
+#include <QLabel>
+#include <QLineEdit>
+#include <QTabWidget>
+
+#ifdef QT_WEBENGINEWIDGETS_LIB
+#include <QtWebEngineWidgets/QWebEngineView>
+#endif
+
+class Railfie : public QTabWidget
+{
+    Q_OBJECT
+
+public:
+    Railfie();
+
+    static constexpr auto routeId = "78617e5f-21cf-40b0-8e1e-4c298c6a7171";
+
+private:
+    QLabel *labelRouteURL;
+    QLineEdit *lineEditRouteURL;
+
+#ifdef QT_WEBENGINEWIDGETS_LIB
+    QWebEngineView *webEngineView;
+#endif
+
+    QWidget *routeTab;
+
+private slots:
+    void updateRoute(QString routeId);
+};
+
+#endif // RAILFIE_H
