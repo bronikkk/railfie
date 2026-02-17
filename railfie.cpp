@@ -24,11 +24,15 @@ Railfie::Railfie()
 
     lineEditRouteURL = new QLineEdit{routeTab};
     lineEditRouteURL->setText(routeId);
-    lineEditRouteURL->setGeometry(260, 10, 700, 22);
+    lineEditRouteURL->setGeometry(260, 10, 280, 22);
+
+    labelInstructions = new QLabel{routeTab};
+    labelInstructions->setText(tr("⬇️ Click the \"Details\" pop-up menu below ⬇️"));
+    labelInstructions->setGeometry(550, 10, 300, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     webEngineView = new QWebEngineView {routeTab};
-    webEngineView->setGeometry(0, 35, 1024, 705);
+    webEngineView->setGeometry(0, 40, 1024, 700);
 #endif
 
     addTab(routeTab, tr("&Route"));

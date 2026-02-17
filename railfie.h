@@ -19,7 +19,7 @@ public:
     static constexpr auto routeId = "78617e5f-21cf-40b0-8e1e-4c298c6a7171";
 
 private:
-    QLabel *labelRouteURL;
+    QLabel *labelInstructions, *labelRouteURL;
     QLineEdit *lineEditRouteURL;
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
