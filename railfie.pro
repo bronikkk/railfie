@@ -13,10 +13,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    railfie.cpp
+    railfie.cpp \
+    routehtmlparser.cpp
 
 HEADERS += \
-    railfie.h
+    railfie.h \
+    routehtmlparser.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

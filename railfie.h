@@ -35,6 +35,8 @@ private:
 private slots:
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
 
+    void printRoute();
+
     void updateRoute(QString routeId);
 };
 

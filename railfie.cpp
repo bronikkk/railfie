@@ -1,11 +1,17 @@
 #include "railfie.h"
 
+#include "routehtmlparser.h"
+
+#include <QMessageBox>
 #include <QRegularExpression>
+#include <QThread>
 
 namespace {
 
 constexpr auto routeURLPrefix = "https://www.bahn.de/buchung/start?vbid=";
 constexpr auto routeURLPrefixRegex = R"(^https://www.bahn.de/buchung/start\?vbid=)";
+
+constexpr auto sleepIntervalMs = 20000;
 
 } // namespace
 
@@ -53,10 +59,23 @@ Railfie::Railfie()
 void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
 {
     downloadRequest->setSavePageFormat(QWebEngineDownloadRequest::CompleteHtmlSaveFormat);
-    downloadRequest->setDownloadFileName(QString{"%1.html"}.arg(lineEditRouteURL->text()));
+
+    QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
+    downloadRequest->setDownloadFileName(downloadedHtmlPageName);
+
+    connect(downloadRequest, SIGNAL(isFinishedChanged()), this, SLOT(printRoute()));
     downloadRequest->accept();
 }
 #endif
+
+void Railfie::printRoute()
+{
+    QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
+    QString inputFileName = temporaryDirectory.filePath(downloadedHtmlPageName);
+
+    QString routeString = RouteHTMLParser::getAllRouteSegments(inputFileName);
+    QMessageBox::information(this, "information", routeString);
+}
 
 void Railfie::updateRoute(QString routeId)
 {
