@@ -6,7 +6,9 @@
 #include <QTabWidget>
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
-#include <QtWebEngineWidgets/QWebEngineView>
+#include <QTemporaryDir>
+#include <QWebEngineProfile>
+#include <QWebEngineView>
 #endif
 
 class Railfie : public QTabWidget
@@ -23,12 +25,16 @@ private:
     QLineEdit *lineEditRouteURL;
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
+    QTemporaryDir temporaryDirectory;
+    QWebEngineProfile *webEngineProfile;
     QWebEngineView *webEngineView;
 #endif
 
     QWidget *routeTab;
 
 private slots:
+    void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
+
     void updateRoute(QString routeId);
 };
 

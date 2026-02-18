@@ -27,11 +27,18 @@ Railfie::Railfie()
     lineEditRouteURL->setGeometry(260, 10, 280, 22);
 
     labelInstructions = new QLabel{routeTab};
-    labelInstructions->setText(tr("⬇️ Click the \"Details\" pop-up menu below ⬇️"));
-    labelInstructions->setGeometry(550, 10, 300, 22);
+    labelInstructions->setText(
+        tr("Click the \"Details\" pop-up menu below, then right click + Save page"));
+    labelInstructions->setGeometry(550, 10, 450, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
-    webEngineView = new QWebEngineView {routeTab};
+    webEngineProfile = new QWebEngineProfile{routeTab};
+    webEngineProfile->setDownloadPath(temporaryDirectory.path());
+
+    connect(webEngineProfile, SIGNAL(downloadRequested(QWebEngineDownloadRequest*)), this,
+            SLOT(downloadWebPage(QWebEngineDownloadRequest*)));
+
+    webEngineView = new QWebEngineView{webEngineProfile, routeTab};
     webEngineView->setGeometry(0, 40, 1024, 700);
 #endif
 
@@ -42,6 +49,15 @@ Railfie::Railfie()
     connect(lineEditRouteURL, SIGNAL(textChanged(QString)), this, SLOT(updateRoute(QString)));
 }
 
+#ifdef QT_WEBENGINEWIDGETS_LIB
+void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
+{
+    downloadRequest->setSavePageFormat(QWebEngineDownloadRequest::CompleteHtmlSaveFormat);
+    downloadRequest->setDownloadFileName(QString{"%1.html"}.arg(lineEditRouteURL->text()));
+    downloadRequest->accept();
+}
+#endif
+
 void Railfie::updateRoute(QString routeId)
 {
     static QRegularExpression prefixToBeRemoved{routeURLPrefixRegex};
@@ -50,7 +66,7 @@ void Railfie::updateRoute(QString routeId)
     lineEditRouteURL->setText(routeId);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
-    webEngineView->load(QString {routeURLPrefix} + routeId);
+    webEngineView->load(QString{routeURLPrefix} + routeId);
     webEngineView->show();
 #endif
 }
