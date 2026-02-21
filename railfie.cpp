@@ -9,7 +9,7 @@
 namespace {
 
 constexpr auto routeURLPrefix = "https://www.bahn.de/buchung/start?vbid=";
-constexpr auto routeURLPrefixRegex = R"(^https://www.bahn.de/buchung/start\?vbid=)";
+constexpr auto routeURLPrefixRegexString = R"(^https://www.bahn.de/buchung/start\?vbid=)";
 
 constexpr auto sleepIntervalMs = 20000;
 
@@ -74,12 +74,12 @@ void Railfie::printRoute()
     QString inputFileName = temporaryDirectory.filePath(downloadedHtmlPageName);
 
     QString routeString = RouteHTMLParser::getAllRouteSegments(inputFileName);
-    QMessageBox::information(this, "information", routeString);
+    QMessageBox::information(this, tr("Information"), routeString);
 }
 
 void Railfie::updateRoute(QString routeId)
 {
-    static QRegularExpression prefixToBeRemoved{routeURLPrefixRegex};
+    static QRegularExpression prefixToBeRemoved{routeURLPrefixRegexString};
 
     routeId = routeId.remove(prefixToBeRemoved);
     lineEditRouteURL->setText(routeId);
