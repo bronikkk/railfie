@@ -21,7 +21,7 @@ public:
     static constexpr auto routeId = "78617e5f-21cf-40b0-8e1e-4c298c6a7171";
 
 private:
-    QLabel *labelInstructions, *labelRouteURL;
+    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription;
     QLineEdit *lineEditRouteURL;
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
@@ -30,7 +30,7 @@ private:
     QWebEngineView *webEngineView;
 #endif
 
-    QWidget *routeTab;
+    QWidget *routeTab, *sightsTab;
 
 private slots:
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);

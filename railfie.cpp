@@ -34,7 +34,7 @@ Railfie::Railfie()
 
     labelInstructions = new QLabel{routeTab};
     labelInstructions->setText(
-        tr("Click the \"Details\" pop-up menu below, then right click + Save page"));
+        tr("Click the <Details> pop-up menu below, then right click + Save page"));
     labelInstructions->setGeometry(550, 10, 450, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
@@ -49,6 +49,13 @@ Railfie::Railfie()
 #endif
 
     addTab(routeTab, tr("&Route"));
+
+    sightsTab = new QWidget{this};
+
+    labelRouteDescription = new QLabel{sightsTab};
+    labelRouteDescription->setGeometry(10, 0, 630, 400);
+
+    addTab(sightsTab, tr("&Sights"));
 
     updateRoute(routeId);
 
@@ -73,8 +80,15 @@ void Railfie::printRoute()
     QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
     QString inputFileName = temporaryDirectory.filePath(downloadedHtmlPageName);
 
-    QString routeString = RouteHTMLParser::getAllRouteSegments(inputFileName);
-    QMessageBox::information(this, tr("Information"), routeString);
+    auto routeSegments = RouteHTMLParser::getAllRouteSegments(inputFileName);
+    if (routeSegments.transports.empty()) {
+        QMessageBox::information(this, "information", tr("Route Details are unavailable"));
+        return;
+    }
+
+    // Switch to the sightsTab with the updated route displayed
+    labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
+    setCurrentIndex(1);
 }
 
 void Railfie::updateRoute(QString routeId)
