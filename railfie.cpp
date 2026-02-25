@@ -57,6 +57,20 @@ Railfie::Railfie()
 
     addTab(sightsTab, tr("&Sights"));
 
+    configurationTab = new QWidget{this};
+
+    palaces = new QCheckBox{configurationTab};
+    palaces->setChecked(true);
+    palaces->setText(tr("Palaces"));
+    palaces->setGeometry(10, 10, 100, 22);
+
+    signs = new QCheckBox{configurationTab};
+    signs->setChecked(true);
+    signs->setText(tr("Signs"));
+    signs->setGeometry(10, 40, 100, 22);
+
+    addTab(configurationTab, tr("&Configure"));
+
     updateRoute(routeId);
 
     connect(lineEditRouteURL, SIGNAL(textChanged(QString)), this, SLOT(updateRoute(QString)));

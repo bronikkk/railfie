@@ -1,6 +1,7 @@
 #ifndef RAILFIE_H
 #define RAILFIE_H
 
+#include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTabWidget>
@@ -21,6 +22,7 @@ public:
     static constexpr auto routeId = "78617e5f-21cf-40b0-8e1e-4c298c6a7171";
 
 private:
+    QCheckBox *palaces, *signs;
     QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription;
     QLineEdit *lineEditRouteURL;
 
@@ -30,7 +32,7 @@ private:
     QWebEngineView *webEngineView;
 #endif
 
-    QWidget *routeTab, *sightsTab;
+    QWidget *configurationTab, *routeTab, *sightsTab;
 
 private slots:
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
