@@ -1,1 +1,4 @@
 Sightseeing from a Deutsche Bahn train
+
+## astyle
+`astyle --style=kr --indent=spaces=4 --align-pointer=name --align-reference=name --convert-tabs --attach-namespaces --max-code-length=100 --max-instatement-indent=120 --pad-header --pad-oper *.cpp *.h`
