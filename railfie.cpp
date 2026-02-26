@@ -96,7 +96,7 @@ void Railfie::printRoute()
 
     auto routeSegments = RouteHTMLParser::getAllRouteSegments(inputFileName);
     if (routeSegments.transports.empty()) {
-        QMessageBox::information(this, "information", tr("Route Details are unavailable"));
+        QMessageBox::information(this, "Information", tr("Route Details are unavailable"));
         return;
     }
 
