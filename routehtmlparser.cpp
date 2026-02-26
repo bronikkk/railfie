@@ -10,10 +10,12 @@ constexpr auto legArrivalRegexString =
     R"regex(datetime="(?<arrival>[^"]*)" class="verbindungs-halt__zeit-ankunft)regex";
 constexpr auto legDepartureRegexString =
     R"regex(datetime="(?<departure>[^"]*)" class="verbindungs-halt__zeit-abfahrt)regex";
+constexpr auto routeOriginRegexString =
+    R"regex(class="_name _start">(?<origin>[A-Za-z ]*))regex";
+constexpr auto routeStartDateRegexString =
+    R"regex(class="default-reiseloesung-list-page-controls__title-date">[^0-9]*(?<startdate>[^<]*))regex";
 constexpr auto legTrainRegexString =
     R"regex(transport-text="(?<transport>[^"]*)" destination-name="(?<destination>[^"]*)")regex";
-constexpr auto routeStartRegexString =
-    R"regex(class="_name _start">(?<start>[A-Za-z ]*)</span>)regex";
 
 } // namespace
 
@@ -28,17 +30,30 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     QTextStream textStream{&inputFile};
     auto inputFileContents = textStream.readAll();
 
-    // Starting point for the route
-    QString start;
+    // Origin for the route
+    QString origin;
 
-    static QRegularExpression regexForRouteStart{routeStartRegexString};
+    static QRegularExpression regexForOrigin{routeOriginRegexString};
 
-    QRegularExpressionMatchIterator matchIteratorStart = regexForRouteStart.globalMatch(
-                                                             inputFileContents);
+    QRegularExpressionMatchIterator matchIteratorOrigin = regexForOrigin.globalMatch(inputFileContents);
 
-    while (matchIteratorStart.hasNext()) {
-        auto match = matchIteratorStart.next();
-        start = match.captured("start");
+    while (matchIteratorOrigin.hasNext()) {
+        auto match = matchIteratorOrigin.next();
+        origin = match.captured("origin");
+        break;
+    }
+
+    // Start date for the route
+    QString startDate;
+
+    static QRegularExpression regexForStartDate{routeStartDateRegexString};
+
+    QRegularExpressionMatchIterator matchIteratorStartDate = regexForStartDate.globalMatch(
+                                                                 inputFileContents);
+
+    while (matchIteratorStartDate.hasNext()) {
+        auto match = matchIteratorStartDate.next();
+        startDate = match.captured("startdate");
         break;
     }
 
@@ -83,7 +98,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
         transports << match.captured("transport");
     }
 
-    return {start, arrivals, departures, destinations, transports};
+    return {origin, startDate, arrivals, departures, destinations, transports};
 }
 
 QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSegments)
@@ -91,7 +106,9 @@ QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSeg
     QString result;
 
     // TODO: Display a table view for the route
-    result += "Route: " + routeSegments.start + " -> " + routeSegments.destinations.join(" -> ") + "\n";
+    result += "Start date: " + routeSegments.startDate + "\n";
+    result += "Route: " + routeSegments.origin + " -> " + routeSegments.destinations.join(" -> ") +
+              "\n";
     result += "Trains: " + routeSegments.transports.join(" -> ") + "\n";
     result += "Departures: " + routeSegments.departures.join(", ") + "\n";
     result += "Arrivals: " + routeSegments.arrivals.join(", ") + "\n";

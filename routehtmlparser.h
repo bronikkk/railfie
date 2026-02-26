@@ -7,7 +7,8 @@ class RouteHTMLParser
 {
 public:
     struct RouteSegments {
-        QString start;
+        QString origin;
+        QString startDate;
         QStringList arrivals;
         QStringList departures;
         QStringList destinations;
