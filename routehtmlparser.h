@@ -1,6 +1,7 @@
 #ifndef ROUTEHTMLPARSER_H
 #define ROUTEHTMLPARSER_H
 
+#include <QDateTime>
 #include <QStringList>
 
 class RouteHTMLParser
@@ -8,7 +9,7 @@ class RouteHTMLParser
 public:
     struct RouteSegments {
         QString origin;
-        QString startDate;
+        QDateTime startDateTime;
         QStringList arrivals;
         QStringList departures;
         QStringList destinations;
