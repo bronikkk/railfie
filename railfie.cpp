@@ -53,7 +53,7 @@ Railfie::Railfie()
     sightsTab = new QWidget{this};
 
     labelRouteDescription = new QLabel{sightsTab};
-    labelRouteDescription->setGeometry(10, 0, 630, 400);
+    labelRouteDescription->setGeometry(10, 0, 1010, 730);
 
     addTab(sightsTab, tr("&Sights"));
 

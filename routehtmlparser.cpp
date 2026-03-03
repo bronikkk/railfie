@@ -229,11 +229,11 @@ QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSeg
 
     // TODO: Display a table view for the route
     result += "Start time: " + routeSegments.startDateTime.toString() + "\n";
-    result += "Route: " + routeSegments.origin + " -> " + routeSegments.destinations.join(" -> ") +
+    result += "Route: " + routeSegments.origin + " -> " + routeSegments.destinations.join(" ->\n") +
               "\n";
     result += "Trains: " + routeSegments.transports.join(" -> ") + "\n";
-    result += "Departures: " + routeSegments.departures.join(", ") + "\n";
-    result += "Arrivals: " + routeSegments.arrivals.join(", ") + "\n";
+    result += "Departures: " + routeSegments.departures.join(",\n") + "\n";
+    result += "Arrivals: " + routeSegments.arrivals.join(",\n") + "\n";
 
     return result;
 }
