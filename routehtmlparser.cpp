@@ -19,12 +19,11 @@ constexpr auto legTrainRegexString =
 
 constexpr auto januaryRegexString = R"regex((?<day>.*)\. Jan. (?<year>.*))regex";
 constexpr auto februaryRegexString = R"regex((?<day>.*)\. Feb. (?<year>.*))regex";
-constexpr auto marchRegexString = R"regex((?<day>.*)\. Mär. (?<year>.*))regex";
+constexpr auto marchRegexString = R"regex((?<day>.*)\. März (?<year>.*))regex";
 constexpr auto aprilRegexString = R"regex((?<day>.*)\. Apr. (?<year>.*))regex";
-// TODO: Check that Mai ist actually abbreviated as Mai
-constexpr auto mayRegexString = R"regex((?<day>.*)\. Mai. (?<year>.*))regex";
-constexpr auto juneRegexString = R"regex((?<day>.*)\. Jun. (?<year>.*))regex";
-constexpr auto julyRegexString = R"regex((?<day>.*)\. Jul. (?<year>.*))regex";
+constexpr auto mayRegexString = R"regex((?<day>.*)\. Mai (?<year>.*))regex";
+constexpr auto juneRegexString = R"regex((?<day>.*)\. Juni (?<year>.*))regex";
+constexpr auto julyRegexString = R"regex((?<day>.*)\. Juli (?<year>.*))regex";
 constexpr auto augustRegexString = R"regex((?<day>.*)\. Aug. (?<year>.*))regex";
 constexpr auto septemberRegexString = R"regex((?<day>.*)\. Sep. (?<year>.*))regex";
 constexpr auto octoberRegexString = R"regex((?<day>.*)\. Oct. (?<year>.*))regex";
@@ -34,6 +33,15 @@ constexpr auto decemberRegexString = R"regex((?<day>.*)\. Dez. (?<year>.*))regex
 // TODO: Optimize the function
 QString convertToDateString(QString germanDateString)
 {
+    if (germanDateString.length() <= 1) {
+        return {};
+    }
+
+    // The day should always have dd. format
+    if (germanDateString[1] == ".") {
+        germanDateString = "0" + germanDateString;
+    }
+
     QRegularExpressionMatch dateMatch;
 
     static QRegularExpression januaryRegex{januaryRegexString};

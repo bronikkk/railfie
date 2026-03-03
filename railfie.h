@@ -19,7 +19,7 @@ class Railfie : public QTabWidget
 public:
     Railfie();
 
-    static constexpr auto routeId = "78617e5f-21cf-40b0-8e1e-4c298c6a7171";
+    static constexpr auto routeId = "bc8b1253-4aad-4146-81e2-ef73aa1511b8";
 
 private:
     QCheckBox *palaces, *signs;
