@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QStringList>
+#include <QVector>
 
 class RouteHTMLParser
 {
@@ -10,8 +11,8 @@ public:
     struct RouteSegments {
         QString origin;
         QDateTime startDateTime;
-        QStringList arrivals;
-        QStringList departures;
+        QVector<QDateTime> arrivals;
+        QVector<QDateTime> departures;
         QStringList destinations;
         QStringList transports;
     };

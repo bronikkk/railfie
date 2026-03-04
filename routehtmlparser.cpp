@@ -158,7 +158,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     }
 
     // Arrivals for the route legs
-    QStringList arrivals;
+    QStringList arrivalStrings;
 
     static QRegularExpression legArrivalRegex{legArrivalRegexString};
 
@@ -167,11 +167,11 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
 
     while (legArrivalMatchIterator.hasNext()) {
         auto match = legArrivalMatchIterator.next();
-        arrivals << match.captured("arrival");
+        arrivalStrings << match.captured("arrival");
     }
 
     // Departures for the route legs
-    QStringList departures;
+    QStringList departureStrings;
 
     static QRegularExpression legDepartureRegex{legDepartureRegexString};
 
@@ -180,11 +180,12 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
 
     while (legDepartureMatchIterator.hasNext()) {
         auto match = legDepartureMatchIterator.next();
-        departures << match.captured("departure");
+        departureStrings << match.captured("departure");
     }
 
     // Start date for the route
     QDateTime startDateTime;
+    QString startDateString;
 
     static QRegularExpression startDateRegex{routeStartDateRegexString};
 
@@ -194,15 +195,58 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     while (startDateMatchIterator.hasNext()) {
         auto match = startDateMatchIterator.next();
 
-        if (!departures.empty()) {
-            auto startDateTimeString = convertToDateString(match.captured("startdate")) + "T" + departures[0];
+        if (!departureStrings.empty()) {
+            startDateString = convertToDateString(match.captured("startdate"));
+            auto startDateTimeString = startDateString + "T" + departureStrings[0];
             qDebug() << "startDateTimeString = " << startDateTimeString;
             startDateTime = QDateTime::fromString(startDateTimeString, "yyyy-MM-ddThh:mm");
         } else {
+            // TODO: Do not show the route details if there are no route legs
             startDateTime = QDateTime::currentDateTime();
+            startDateString = startDateTime.toString("yyyy-MM-dd");
         }
 
         break;
+    }
+
+    QDateTime currentDateTime;
+
+    // Calculate QDateTime for arrivals
+    QVector<QDateTime> arrivals;
+
+    // Just before the actual startDateTime
+    currentDateTime = startDateTime.addMSecs(-1);
+
+    for (const auto &arrivalString : std::as_const(arrivalStrings)) {
+        QDateTime arrivalDateTime = QDateTime::fromString(startDateString + "T" + arrivalString,
+                                                          "yyyy-MM-ddThh:mm");
+        // We assume that the are no legs longer than 24 hours
+        while (arrivalDateTime <= currentDateTime) {
+            arrivalDateTime = arrivalDateTime.addDays(1);
+        }
+
+        arrivals.emplaceBack(arrivalDateTime);
+
+        currentDateTime = arrivalDateTime;
+    }
+
+    // Calculate QDateTime for departures
+    QVector<QDateTime> departures;
+
+    // Just before the actual startDateTime
+    currentDateTime = startDateTime.addMSecs(-1);
+
+    for (const auto &departureString : std::as_const(departureStrings)) {
+        QDateTime departureDateTime = QDateTime::fromString(startDateString + "T" + departureString,
+                                                            "yyyy-MM-ddThh:mm");
+        // We assume that the are no legs longer than 24 hours
+        while (departureDateTime <= currentDateTime) {
+            departureDateTime = departureDateTime.addDays(1);
+        }
+
+        departures.emplaceBack(departureDateTime);
+
+        currentDateTime = departureDateTime;
     }
 
     // Destinations and transports for the route legs
@@ -225,15 +269,29 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
 
 QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSegments)
 {
+    // TODO: Display a table view for the route
     QString result;
 
-    // TODO: Display a table view for the route
     result += "Start time: " + routeSegments.startDateTime.toString() + "\n";
-    result += "Route: " + routeSegments.origin + " -> " + routeSegments.destinations.join(" ->\n") +
+
+    result += "\n";
+    result += "Route: \n" + routeSegments.origin + " ->\n" + routeSegments.destinations.join(" ->\n") +
               "\n";
+
+    result += "\n";
     result += "Trains: " + routeSegments.transports.join(" -> ") + "\n";
-    result += "Departures: " + routeSegments.departures.join(",\n") + "\n";
-    result += "Arrivals: " + routeSegments.arrivals.join(",\n") + "\n";
+
+    result += "\n";
+    result += "Departures: \n";
+    for (const auto &departure : routeSegments.departures) {
+        result += departure.toString() + "\n";
+    }
+
+    result += "\n";
+    result += "Arrivals: \n";
+    for (const auto &arrival : routeSegments.arrivals) {
+        result += arrival.toString() + "\n";
+    }
 
     return result;
 }
