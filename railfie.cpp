@@ -52,10 +52,14 @@ Railfie::Railfie()
 
     sightsTab = new QWidget{this};
 
-    labelRouteDescription = new QLabel{sightsTab};
+    addTab(sightsTab, tr("&Sights"));
+
+    textTab = new QWidget{this};
+
+    labelRouteDescription = new QLabel{textTab};
     labelRouteDescription->setGeometry(10, 0, 1010, 730);
 
-    addTab(sightsTab, tr("&Sights"));
+    addTab(textTab, tr("&Text"));
 
     configurationTab = new QWidget{this};
 
@@ -64,10 +68,15 @@ Railfie::Railfie()
     palaces->setText(tr("Palaces"));
     palaces->setGeometry(10, 10, 100, 22);
 
+    peaks = new QCheckBox{configurationTab};
+    peaks->setChecked(true);
+    peaks->setText(tr("Signs"));
+    peaks->setGeometry(10, 40, 100, 22);
+
     signs = new QCheckBox{configurationTab};
     signs->setChecked(true);
     signs->setText(tr("Signs"));
-    signs->setGeometry(10, 40, 100, 22);
+    signs->setGeometry(10, 70, 100, 22);
 
     addTab(configurationTab, tr("&Configure"));
 
@@ -100,9 +109,9 @@ void Railfie::printRoute()
         return;
     }
 
-    // Switch to the sightsTab with the updated route displayed
     labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
-    setCurrentIndex(1);
+    // Switch to the textTab with the updated route displayed
+    setCurrentIndex(2);
 }
 
 void Railfie::updateRoute(QString routeId)
