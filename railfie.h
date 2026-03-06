@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSlider>
 #include <QTabWidget>
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
@@ -23,8 +24,10 @@ public:
 
 private:
     QCheckBox *palaces, *peaks, *signs;
-    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription;
+    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription, *labelSliderDestination,
+           *labelSliderOrigin;
     QLineEdit *lineEditRouteURL;
+    QSlider *sliderRoute;
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     QTemporaryDir temporaryDirectory;

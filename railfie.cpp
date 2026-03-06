@@ -52,6 +52,17 @@ Railfie::Railfie()
 
     sightsTab = new QWidget{this};
 
+    labelSliderOrigin = new QLabel{sightsTab};
+    labelSliderOrigin->setGeometry(10, 330, 1000, 22);
+
+    sliderRoute = new QSlider{sightsTab};
+    sliderRoute->setGeometry(10, 350, 1000, 22);
+    sliderRoute->setOrientation(Qt::Orientation::Horizontal);
+
+    labelSliderDestination = new QLabel{sightsTab};
+    labelSliderDestination->setGeometry(10, 375, 1000, 22);
+    labelSliderDestination->setAlignment(Qt::AlignRight);
+
     addTab(sightsTab, tr("&Sights"));
 
     textTab = new QWidget{this};
@@ -70,7 +81,7 @@ Railfie::Railfie()
 
     peaks = new QCheckBox{configurationTab};
     peaks->setChecked(true);
-    peaks->setText(tr("Signs"));
+    peaks->setText(tr("Peaks"));
     peaks->setGeometry(10, 40, 100, 22);
 
     signs = new QCheckBox{configurationTab};
@@ -109,9 +120,13 @@ void Railfie::printRoute()
         return;
     }
 
+    // Modify the text description in the textTab
     labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
-    // Switch to the textTab with the updated route displayed
-    setCurrentIndex(2);
+
+    labelSliderOrigin->setText(routeSegments.origin);
+    labelSliderDestination->setText(routeSegments.destinations.back());
+    // Switch to the sightsTab with the updated route displayed
+    setCurrentIndex(1);
 }
 
 void Railfie::updateRoute(QString routeId)
