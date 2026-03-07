@@ -8,10 +8,10 @@
 
 namespace {
 
+constexpr auto daySecs = 86400;
+
 constexpr auto routeURLPrefix = "https://www.bahn.de/buchung/start?vbid=";
 constexpr auto routeURLPrefixRegexString = R"(^https://www.bahn.de/buchung/start\?vbid=)";
-
-constexpr auto sleepIntervalMs = 20000;
 
 } // namespace
 
@@ -52,16 +52,19 @@ Railfie::Railfie()
 
     sightsTab = new QWidget{this};
 
-    labelSliderOrigin = new QLabel{sightsTab};
-    labelSliderOrigin->setGeometry(10, 330, 1000, 22);
+    labelDestinationDescription = new QLabel{sightsTab};
+    labelDestinationDescription->setGeometry(524, 0, 500, 22);
+    labelDestinationDescription->setAlignment(Qt::AlignLeft);
 
     sliderRoute = new QSlider{sightsTab};
-    sliderRoute->setGeometry(10, 350, 1000, 22);
-    sliderRoute->setOrientation(Qt::Orientation::Horizontal);
+    sliderRoute->setGeometry(500, 0, 22, 710);
+    sliderRoute->setOrientation(Qt::Orientation::Vertical);
+    sliderRoute->setRange(0, daySecs);
+    sliderRoute->setTickPosition(QSlider::TickPosition::TicksBothSides);
 
-    labelSliderDestination = new QLabel{sightsTab};
-    labelSliderDestination->setGeometry(10, 375, 1000, 22);
-    labelSliderDestination->setAlignment(Qt::AlignRight);
+    labelOriginDescription = new QLabel{sightsTab};
+    labelOriginDescription->setGeometry(0, 695, 500, 22);
+    labelOriginDescription->setAlignment(Qt::AlignRight);
 
     addTab(sightsTab, tr("&Sights"));
 
@@ -74,20 +77,20 @@ Railfie::Railfie()
 
     configurationTab = new QWidget{this};
 
-    palaces = new QCheckBox{configurationTab};
-    palaces->setChecked(true);
-    palaces->setText(tr("Palaces"));
-    palaces->setGeometry(10, 10, 100, 22);
+    checkBoxPalaces = new QCheckBox{configurationTab};
+    checkBoxPalaces->setChecked(true);
+    checkBoxPalaces->setText(tr("Palaces"));
+    checkBoxPalaces->setGeometry(10, 10, 100, 22);
 
-    peaks = new QCheckBox{configurationTab};
-    peaks->setChecked(true);
-    peaks->setText(tr("Peaks"));
-    peaks->setGeometry(10, 40, 100, 22);
+    checkBoxPeaks = new QCheckBox{configurationTab};
+    checkBoxPeaks->setChecked(true);
+    checkBoxPeaks->setText(tr("Peaks"));
+    checkBoxPeaks->setGeometry(10, 40, 100, 22);
 
-    signs = new QCheckBox{configurationTab};
-    signs->setChecked(true);
-    signs->setText(tr("Signs"));
-    signs->setGeometry(10, 70, 100, 22);
+    checkBoxSigns = new QCheckBox{configurationTab};
+    checkBoxSigns->setChecked(true);
+    checkBoxSigns->setText(tr("Signs"));
+    checkBoxSigns->setGeometry(10, 70, 100, 22);
 
     addTab(configurationTab, tr("&Configure"));
 
@@ -123,9 +126,32 @@ void Railfie::printRoute()
     // Modify the text description in the textTab
     labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
 
-    labelSliderOrigin->setText(routeSegments.origin);
-    labelSliderDestination->setText(routeSegments.destinations.back());
-    // Switch to the sightsTab with the updated route displayed
+    auto currentDateTimeNoTimezone = QDateTime::currentDateTime();
+    auto startDateTime = routeSegments.startDateTime;
+    auto finishDateTime = routeSegments.arrivals.back();
+
+    if (finishDateTime < currentDateTimeNoTimezone) {
+        auto daysAdded = finishDateTime.daysTo(currentDateTimeNoTimezone);
+        startDateTime = startDateTime.addDays(daysAdded);
+        finishDateTime = finishDateTime.addDays(daysAdded);
+    }
+
+    const double currentMSecs = currentDateTimeNoTimezone.toMSecsSinceEpoch() -
+                                startDateTime.toMSecsSinceEpoch();
+    if (currentMSecs > 0) {
+        const double dateTimeRangeMSecs = finishDateTime.toMSecsSinceEpoch() -
+                                          startDateTime.toMSecsSinceEpoch();
+        sliderRoute->setValue(std::min(daySecs,
+                                       static_cast<int>(daySecs * (currentMSecs / dateTimeRangeMSecs))));
+    } else {
+        sliderRoute->setValue(0);
+    }
+
+    labelOriginDescription->setText(routeSegments.origin + " " + startDateTime.toString());
+    labelDestinationDescription->setText(finishDateTime.toString() + " " +
+                                         routeSegments.destinations.back());
+
+    // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);
 }
 

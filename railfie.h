@@ -23,9 +23,9 @@ public:
     static constexpr auto routeId = "65c03458-0765-45dc-b5e2-68fa99cf38b7";
 
 private:
-    QCheckBox *palaces, *peaks, *signs;
-    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription, *labelSliderDestination,
-           *labelSliderOrigin;
+    QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns;
+    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription, *labelDestinationDescription,
+           *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
     QSlider *sliderRoute;
 
