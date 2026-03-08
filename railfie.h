@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QSlider>
 #include <QTabWidget>
 #include <QTimer>
@@ -25,9 +26,10 @@ public:
 
 private:
     QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns;
-    QLabel *labelInstructions, *labelRouteURL, *labelRouteDescription, *labelDestinationDescription,
-           *labelOriginDescription;
+    QLabel *labelCurrentTimeValue, *labelInstructions, *labelRouteURL, *labelRouteDescription,
+           *labelDestinationDescription, *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
+    QPushButton *pushButtonCurrentTime;
     QSlider *sliderRoute;
     QTimer *timerSlideToTheRight;
 
@@ -43,9 +45,11 @@ private:
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;
 
 private slots:
+    void displayRoute();
+
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
 
-    void printRoute();
+    void moveSlider();
 
     void slideToTheRight();
 

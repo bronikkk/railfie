@@ -53,6 +53,14 @@ Railfie::Railfie()
 
     sightsTab = new QWidget{this};
 
+    pushButtonCurrentTime = new QPushButton{sightsTab};
+    pushButtonCurrentTime->setGeometry(350, 0, 90, 22);
+    pushButtonCurrentTime->setText(tr("Current time: "));
+    pushButtonCurrentTime->setEnabled(false);
+
+    labelCurrentTimeValue = new QLabel{sightsTab};
+    labelCurrentTimeValue->setGeometry(445, 0, 50, 22);
+
     labelDestinationDescription = new QLabel{sightsTab};
     labelDestinationDescription->setGeometry(524, 0, 500, 22);
     labelDestinationDescription->setAlignment(Qt::AlignLeft);
@@ -68,6 +76,11 @@ Railfie::Railfie()
     labelOriginDescription->setAlignment(Qt::AlignRight);
 
     timerSlideToTheRight = new QTimer{sightsTab};
+
+    connect(pushButtonCurrentTime, SIGNAL(clicked(bool)), this, SLOT(slideToTheRight()));
+
+    connect(sliderRoute, SIGNAL(sliderReleased()), this, SLOT(moveSlider()));
+    connect(sliderRoute, SIGNAL(sliderReleased()), timerSlideToTheRight, SLOT(stop()));
 
     connect(timerSlideToTheRight, SIGNAL(timeout()), this, SLOT(slideToTheRight()));
 
@@ -104,27 +117,14 @@ Railfie::Railfie()
     connect(lineEditRouteURL, SIGNAL(textChanged(QString)), this, SLOT(updateRoute(QString)));
 }
 
-#ifdef QT_WEBENGINEWIDGETS_LIB
-void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
-{
-    downloadRequest->setSavePageFormat(QWebEngineDownloadRequest::CompleteHtmlSaveFormat);
-
-    QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
-    downloadRequest->setDownloadFileName(downloadedHtmlPageName);
-
-    connect(downloadRequest, SIGNAL(isFinishedChanged()), this, SLOT(printRoute()));
-    downloadRequest->accept();
-}
-#endif
-
-void Railfie::printRoute()
+void Railfie::displayRoute()
 {
     QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
     QString inputFileName = temporaryDirectory.filePath(downloadedHtmlPageName);
 
     auto routeSegments = RouteHTMLParser::getAllRouteSegments(inputFileName);
     if (routeSegments.transports.empty()) {
-        QMessageBox::information(this, "Information", tr("Route Details are unavailable"));
+        QMessageBox::information(this, tr("Information"), tr("Route Details are unavailable"));
         return;
     }
 
@@ -154,11 +154,42 @@ void Railfie::printRoute()
     setCurrentIndex(1);
 }
 
+#ifdef QT_WEBENGINEWIDGETS_LIB
+void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
+{
+    downloadRequest->setSavePageFormat(QWebEngineDownloadRequest::CompleteHtmlSaveFormat);
+
+    QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
+    downloadRequest->setDownloadFileName(downloadedHtmlPageName);
+
+    connect(downloadRequest, SIGNAL(isFinishedChanged()), this, SLOT(displayRoute()));
+    connect(downloadRequest, SIGNAL(isFinishedChanged()), timerSlideToTheRight, SLOT(stop()));
+
+    downloadRequest->accept();
+}
+#endif
+
+void Railfie::moveSlider()
+{
+    QDateTime dateTimeToSet = routeSliderStartDateTime;
+
+    if (routeSliderSpeedRatio > 0) {
+        dateTimeToSet = dateTimeToSet.addMSecs(sliderRoute->value() / routeSliderSpeedRatio);
+    }
+
+    labelCurrentTimeValue->setText(dateTimeToSet.toString("hh:mm:ss"));
+
+    pushButtonCurrentTime->setEnabled(true);
+}
+
 void Railfie::slideToTheRight()
 {
     auto currentDateTime = QDateTime::currentDateTime();
     const double currentPassedMSecs = currentDateTime.toMSecsSinceEpoch() -
                                       routeSliderStartDateTime.toMSecsSinceEpoch();
+
+    pushButtonCurrentTime->setEnabled(false);
+    labelCurrentTimeValue->setText(currentDateTime.toString("hh:mm:ss"));
 
     if (currentPassedMSecs > 0) {
         sliderRoute->setValue(static_cast<int>(currentPassedMSecs * routeSliderSpeedRatio));

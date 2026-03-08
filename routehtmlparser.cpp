@@ -198,7 +198,6 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
         if (!departureStrings.empty()) {
             startDateString = convertToDateString(match.captured("startdate"));
             auto startDateTimeString = startDateString + "T" + departureStrings[0];
-            qDebug() << "startDateTimeString = " << startDateTimeString;
             startDateTime = QDateTime::fromString(startDateTimeString, "yyyy-MM-ddThh:mm");
         } else {
             // TODO: Do not show the route details if there are no route legs
