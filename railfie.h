@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QSlider>
 #include <QTabWidget>
+#include <QTimer>
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
 #include <QTemporaryDir>
@@ -28,6 +29,10 @@ private:
            *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
     QSlider *sliderRoute;
+    QTimer *timerSlideToTheRight;
+
+    double routeSliderSpeedRatio = 0;
+    QDateTime routeSliderStartDateTime;
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     QTemporaryDir temporaryDirectory;
@@ -41,6 +46,8 @@ private slots:
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
 
     void printRoute();
+
+    void slideToTheRight();
 
     void updateRoute(QString routeId);
 };

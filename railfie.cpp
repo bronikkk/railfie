@@ -8,7 +8,8 @@
 
 namespace {
 
-constexpr auto daySecs = 86400;
+constexpr auto dayMSecs = 24 * 60 * 60 * 1000;
+constexpr auto secondMSecs = 1000;
 
 constexpr auto routeURLPrefix = "https://www.bahn.de/buchung/start?vbid=";
 constexpr auto routeURLPrefixRegexString = R"(^https://www.bahn.de/buchung/start\?vbid=)";
@@ -59,12 +60,16 @@ Railfie::Railfie()
     sliderRoute = new QSlider{sightsTab};
     sliderRoute->setGeometry(500, 0, 22, 710);
     sliderRoute->setOrientation(Qt::Orientation::Vertical);
-    sliderRoute->setRange(0, daySecs);
+    sliderRoute->setRange(0, dayMSecs);
     sliderRoute->setTickPosition(QSlider::TickPosition::TicksBothSides);
 
     labelOriginDescription = new QLabel{sightsTab};
     labelOriginDescription->setGeometry(0, 695, 500, 22);
     labelOriginDescription->setAlignment(Qt::AlignRight);
+
+    timerSlideToTheRight = new QTimer{sightsTab};
+
+    connect(timerSlideToTheRight, SIGNAL(timeout()), this, SLOT(slideToTheRight()));
 
     addTab(sightsTab, tr("&Sights"));
 
@@ -126,33 +131,43 @@ void Railfie::printRoute()
     // Modify the text description in the textTab
     labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
 
-    auto currentDateTimeNoTimezone = QDateTime::currentDateTime();
-    auto startDateTime = routeSegments.startDateTime;
-    auto finishDateTime = routeSegments.arrivals.back();
+    routeSliderStartDateTime = routeSegments.startDateTime;
+    auto routeSliderFinishDateTime = routeSegments.arrivals.back();
 
-    if (finishDateTime < currentDateTimeNoTimezone) {
-        auto daysAdded = finishDateTime.daysTo(currentDateTimeNoTimezone);
-        startDateTime = startDateTime.addDays(daysAdded);
-        finishDateTime = finishDateTime.addDays(daysAdded);
+    routeSliderSpeedRatio = dayMSecs / static_cast<double>(routeSliderFinishDateTime.toMSecsSinceEpoch()
+                                                           - routeSliderStartDateTime.toMSecsSinceEpoch());
+
+    auto currentDateTime = QDateTime::currentDateTime();
+    if (routeSliderFinishDateTime < currentDateTime) {
+        auto daysAdded = routeSliderFinishDateTime.daysTo(currentDateTime);
+        routeSliderStartDateTime = routeSliderStartDateTime.addDays(daysAdded);
+        routeSliderFinishDateTime = routeSliderFinishDateTime.addDays(daysAdded);
     }
 
-    const double currentMSecs = currentDateTimeNoTimezone.toMSecsSinceEpoch() -
-                                startDateTime.toMSecsSinceEpoch();
-    if (currentMSecs > 0) {
-        const double dateTimeRangeMSecs = finishDateTime.toMSecsSinceEpoch() -
-                                          startDateTime.toMSecsSinceEpoch();
-        sliderRoute->setValue(std::min(daySecs,
-                                       static_cast<int>(daySecs * (currentMSecs / dateTimeRangeMSecs))));
+    labelOriginDescription->setText(routeSegments.origin + " " + routeSliderStartDateTime.toString());
+    labelDestinationDescription->setText(routeSliderFinishDateTime.toString() + " " +
+                                         routeSegments.destinations.back());
+
+    slideToTheRight();
+
+    // Switch to the sightsTab with the updated route as a slider
+    setCurrentIndex(1);
+}
+
+void Railfie::slideToTheRight()
+{
+    auto currentDateTime = QDateTime::currentDateTime();
+    const double currentPassedMSecs = currentDateTime.toMSecsSinceEpoch() -
+                                      routeSliderStartDateTime.toMSecsSinceEpoch();
+
+    if (currentPassedMSecs > 0) {
+        sliderRoute->setValue(static_cast<int>(currentPassedMSecs * routeSliderSpeedRatio));
     } else {
         sliderRoute->setValue(0);
     }
 
-    labelOriginDescription->setText(routeSegments.origin + " " + startDateTime.toString());
-    labelDestinationDescription->setText(finishDateTime.toString() + " " +
-                                         routeSegments.destinations.back());
-
-    // Switch to the sightsTab with the updated route as a slider
-    setCurrentIndex(1);
+    // The slider will update each second if the route takes <= 24h
+    timerSlideToTheRight->start(secondMSecs);
 }
 
 void Railfie::updateRoute(QString routeId)
