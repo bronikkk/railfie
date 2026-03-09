@@ -139,7 +139,8 @@ void Railfie::displayRoute()
 
     auto currentDateTime = QDateTime::currentDateTime();
     while (routeSliderFinishDateTime < currentDateTime) {
-        auto daysAdded = std::max(static_cast<qint64>(1), routeSliderFinishDateTime.daysTo(currentDateTime));
+        auto daysAdded = std::max(static_cast<qint64>(1),
+                                  routeSliderFinishDateTime.daysTo(currentDateTime));
         routeSliderStartDateTime = routeSliderStartDateTime.addDays(daysAdded);
         routeSliderFinishDateTime = routeSliderFinishDateTime.addDays(daysAdded);
     }

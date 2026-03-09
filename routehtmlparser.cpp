@@ -15,7 +15,9 @@ constexpr auto routeOriginRegexString =
 constexpr auto routeStartDateRegexString =
     R"regex(class="default-reiseloesung-list-page-controls__title-date">[^0-9]*(?<startdate>[^<]*))regex";
 constexpr auto legTrainRegexString =
-    R"regex(transport-text="(?<transport>[^"]*)" destination-name="(?<destination>[^"]*)")regex";
+    R"regex(transport-text="(?<transportserial>[^"]*)" destination-name="(?<destination>[^"]*)")regex";
+constexpr auto serialRegexString =
+    R"regex((?<transport>.*) \((?<serial>.*)\))regex";
 
 constexpr auto januaryRegexString = R"regex((?<day>.*)\. Jan. (?<year>.*))regex";
 constexpr auto februaryRegexString = R"regex((?<day>.*)\. Feb. (?<year>.*))regex";
@@ -250,6 +252,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
 
     // Destinations and transports for the route legs
     QStringList destinations;
+    QStringList serialsForTrains;
     QStringList transports;
 
     static QRegularExpression legTrainRegex{legTrainRegexString};
@@ -260,10 +263,23 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     while (trainMatchIterator.hasNext()) {
         auto match = trainMatchIterator.next();
         destinations << match.captured("destination");
-        transports << match.captured("transport");
+
+        auto transportSerial = match.captured("transportserial");
+
+        static QRegularExpression serialRegex{serialRegexString};
+
+        auto serialMatch = serialRegex.match(transportSerial);
+
+        if (serialMatch.hasMatch()) {
+            serialsForTrains << serialMatch.captured("serial");
+            transports << serialMatch.captured("transport");
+        } else {
+            serialsForTrains << "";
+            transports << transportSerial;
+        }
     }
 
-    return {origin, startDateTime, arrivals, departures, destinations, transports};
+    return {origin, startDateTime, arrivals, departures, destinations, serialsForTrains, transports};
 }
 
 QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSegments)
@@ -279,6 +295,9 @@ QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSeg
 
     result += "\n";
     result += "Trains: " + routeSegments.transports.join(" -> ") + "\n";
+
+    result += "\n";
+    result += "Serial: " + routeSegments.serialsForTrains.join(" -> ") + "\n";
 
     result += "\n";
     result += "Departures: \n";
