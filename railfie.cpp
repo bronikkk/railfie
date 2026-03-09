@@ -192,7 +192,13 @@ void Railfie::slideToTheRight()
     labelCurrentTimeValue->setText(currentDateTime.toString("hh:mm:ss"));
 
     if (currentPassedMSecs > 0) {
-        sliderRoute->setValue(static_cast<int>(currentPassedMSecs * routeSliderSpeedRatio));
+        auto value = static_cast<int>(currentPassedMSecs * routeSliderSpeedRatio);
+        sliderRoute->setValue(std::min(dayMSecs, value));
+
+        // Stopping the timer once the slider has reached its upper bound
+        if (value >= dayMSecs) {
+            return;
+        }
     } else {
         sliderRoute->setValue(0);
     }
