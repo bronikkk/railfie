@@ -14,12 +14,15 @@ constexpr auto secondMSecs = 1000;
 constexpr auto routeURLPrefix = "https://www.bahn.de/buchung/start?vbid=";
 constexpr auto routeURLPrefixRegexString = R"(^https://www.bahn.de/buchung/start\?vbid=)";
 
+constexpr auto windowHeight = 740;
+constexpr auto windowWidth = 1024;
+
 } // namespace
 
 Railfie::Railfie()
 {
-    resize(1024, 740);
-    setMinimumSize(1024, 740);
+    resize(windowWidth, windowHeight);
+    setMinimumSize(windowWidth, windowHeight);
 
     setWindowTitle(tr("Railfie"));
 
