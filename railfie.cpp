@@ -96,6 +96,7 @@ Railfie::Railfie()
 
     addTab(textTab, tr("&Text"));
 
+    // TODO: Get rid of the hardcoded types of sights
     configurationTab = new QWidget{this};
 
     checkBoxPalaces = new QCheckBox{configurationTab};
@@ -112,6 +113,11 @@ Railfie::Railfie()
     checkBoxSigns->setChecked(true);
     checkBoxSigns->setText(tr("Signs"));
     checkBoxSigns->setGeometry(10, 70, 100, 22);
+
+    checkBoxStadia = new QCheckBox{configurationTab};
+    checkBoxStadia->setChecked(true);
+    checkBoxStadia->setText(tr("Stadia"));
+    checkBoxStadia->setGeometry(10, 100, 100, 22);
 
     addTab(configurationTab, tr("&Configure"));
 

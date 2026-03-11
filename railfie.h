@@ -25,7 +25,7 @@ public:
     static constexpr auto routeId = "65c03458-0765-45dc-b5e2-68fa99cf38b7";
 
 private:
-    QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns;
+    QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns, *checkBoxStadia;
     QLabel *labelCurrentTimeValue, *labelInstructions, *labelRouteURL, *labelRouteDescription,
            *labelDestinationDescription, *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
