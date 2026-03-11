@@ -78,6 +78,9 @@ Railfie::Railfie()
     labelOriginDescription->setGeometry(0, 695, 500, 22);
     labelOriginDescription->setAlignment(Qt::AlignRight);
 
+    stationsDatabase = new StationsDatabase{sightsTab};
+    stationsDatabase->setGeometry(0, 30, 480, 650);
+
     timerSlideToTheRight = new QTimer{sightsTab};
 
     connect(pushButtonCurrentTime, SIGNAL(clicked(bool)), this, SLOT(slideToTheRight()));

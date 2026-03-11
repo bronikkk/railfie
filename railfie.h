@@ -15,6 +15,8 @@
 #include <QWebEngineView>
 #endif
 
+#include "stationsdatabase.h"
+
 class Railfie : public QTabWidget
 {
     Q_OBJECT
@@ -43,6 +45,8 @@ private:
 #endif
 
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;
+
+    StationsDatabase *stationsDatabase;
 
 private slots:
     void displayRoute();

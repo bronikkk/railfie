@@ -14,13 +14,18 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     railfie.cpp \
-    routehtmlparser.cpp
+    routehtmlparser.cpp \
+    stationsdatabase.cpp
 
 HEADERS += \
     railfie.h \
-    routehtmlparser.h
+    routehtmlparser.h \
+    stationsdatabase.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    railfieressource.qrc

@@ -1,0 +1,53 @@
+#include "stationsdatabase.h"
+
+#include <QFile>
+#include <QMessageBox>
+#include <QStringListModel>
+#include <QTextStream>
+
+StationsDatabase::StationsDatabase(QWidget *parent, QString filename) : QListView{parent}
+{
+    QFile databaseFile{filename};
+
+    if (!databaseFile.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(this, tr("Error"), tr("Stations database is not available"));
+        return;
+    }
+
+    QStringList stationsNames;
+    QTextStream inputStream{&databaseFile};
+
+    // Get rid of the header column
+    if (!inputStream.atEnd()) {
+        static_cast<void>(inputStream.readLine());
+    }
+
+    while (!inputStream.atEnd()) {
+        auto line = inputStream.readLine();
+        auto columns = line.split(";");
+
+        // TODO: Get rid of the hardcoded numbers
+        auto name = columns[4];
+
+        stationsNames << name;
+
+        auto latitude = columns[6].toDouble();
+        auto longitude = columns[7].toDouble();
+        stations[name] = Data{latitude, longitude};
+    }
+
+    databaseFile.close();
+
+    QStringListModel *listModel = new QStringListModel{this};
+
+    stationsNames.sort();
+    listModel->setStringList(stationsNames);
+
+    setModel(listModel);
+}
+
+StationsDatabase::Data StationsDatabase::getDataForStation(QString name) const
+{
+    auto iter = stations.find(name);
+    return iter != stations.end() ? *iter : StationsDatabase::Data{};
+}
