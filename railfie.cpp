@@ -122,6 +122,8 @@ Railfie::Railfie()
 
 void Railfie::displayRoute()
 {
+    timerSlideToTheRight->stop();
+
     QString downloadedHtmlPageName = QString{"%1.html"}.arg(lineEditRouteURL->text());
     QString inputFileName = temporaryDirectory.filePath(downloadedHtmlPageName);
 
@@ -167,7 +169,6 @@ void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
     downloadRequest->setDownloadFileName(downloadedHtmlPageName);
 
     connect(downloadRequest, SIGNAL(isFinishedChanged()), this, SLOT(displayRoute()));
-    connect(downloadRequest, SIGNAL(isFinishedChanged()), timerSlideToTheRight, SLOT(stop()));
 
     downloadRequest->accept();
 }
