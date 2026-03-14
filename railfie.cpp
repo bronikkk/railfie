@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QSet>
 #include <QThread>
 
 namespace {
@@ -79,7 +80,7 @@ Railfie::Railfie()
     labelOriginDescription->setAlignment(Qt::AlignRight);
 
     stationsDatabase = new StationsDatabase{sightsTab};
-    stationsDatabase->setGeometry(0, 30, 480, 650);
+    stationsDatabase->setGeometry(0, 30, 480, 665);
 
     timerSlideToTheRight = new QTimer{sightsTab};
 
@@ -129,6 +130,7 @@ Railfie::Railfie()
     connect(lineEditRouteURL, SIGNAL(textChanged(QString)), this, SLOT(updateRoute(QString)));
 }
 
+// TODO: Split this function into several separate functions
 void Railfie::displayRoute()
 {
     timerSlideToTheRight->stop();
@@ -141,6 +143,7 @@ void Railfie::displayRoute()
         QMessageBox::information(this, tr("Information"), tr("Route Details are unavailable"));
         return;
     }
+    assert(routeSegments.departures.size() == routeSegments.arrivals.size());
 
     // Modify the text description in the textTab
     labelRouteDescription->setText(RouteHTMLParser::toString(routeSegments));
@@ -164,6 +167,25 @@ void Railfie::displayRoute()
                                          routeSegments.destinations.back());
 
     slideToTheRight();
+
+    QSet<QString> uniqueStationsNames;
+    QStringList stationsNames;
+
+    stationsNames << routeSegments.origin;
+
+    for (const auto &destination : routeSegments.destinations) {
+        if (uniqueStationsNames.contains(destination)) {
+            continue;
+        }
+
+        uniqueStationsNames.insert(destination);
+
+        stationsNames << destination;
+    }
+
+    // This corresponds to the direction of the route slider
+    std::reverse(stationsNames.begin(), stationsNames.end());
+    stationsDatabase->setModelWithStringList(stationsNames);
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);

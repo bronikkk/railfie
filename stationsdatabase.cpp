@@ -38,16 +38,22 @@ StationsDatabase::StationsDatabase(QWidget *parent, QString filename) : QListVie
 
     databaseFile.close();
 
-    QStringListModel *listModel = new QStringListModel{this};
-
     stationsNames.sort();
-    listModel->setStringList(stationsNames);
 
-    setModel(listModel);
+    setModelWithStringList(stationsNames);
 }
 
 StationsDatabase::Data StationsDatabase::getDataForStation(QString name) const
 {
     auto iter = stations.find(name);
     return iter != stations.end() ? *iter : StationsDatabase::Data{};
+}
+
+void StationsDatabase::setModelWithStringList(const QStringList &strings)
+{
+    QStringListModel *listModel = new QStringListModel{this};
+
+    listModel->setStringList(strings);
+
+    setModel(listModel);
 }

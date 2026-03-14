@@ -4,6 +4,7 @@
 #include <QListView>
 #include <QMap>
 #include <QString>
+#include <QStringList>
 
 class StationsDatabase : public QListView
 {
@@ -18,6 +19,8 @@ public:
     };
 
     Data getDataForStation(QString name) const;
+
+    void setModelWithStringList(const QStringList &strings);
 
 private:
     QMap<QString, Data> stations;
