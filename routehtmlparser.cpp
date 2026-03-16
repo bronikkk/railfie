@@ -221,8 +221,9 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     currentDateTime = startDateTime.addMSecs(-1);
 
     for (const auto &arrivalString : std::as_const(arrivalStrings)) {
-        QDateTime arrivalDateTime = QDateTime::fromString(startDateString + "T" + arrivalString,
-                                                          "yyyy-MM-ddThh:mm");
+        auto arrivalDateTime = QDateTime::fromString(startDateString + "T" + arrivalString,
+                                                     "yyyy-MM-ddThh:mm");
+
         // We assume that the are no legs longer than 24 hours
         while (arrivalDateTime <= currentDateTime) {
             arrivalDateTime = arrivalDateTime.addDays(1);
@@ -240,8 +241,9 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     currentDateTime = startDateTime.addMSecs(-1);
 
     for (const auto &departureString : std::as_const(departureStrings)) {
-        QDateTime departureDateTime = QDateTime::fromString(startDateString + "T" + departureString,
-                                                            "yyyy-MM-ddThh:mm");
+        auto departureDateTime = QDateTime::fromString(startDateString + "T" + departureString,
+                                                       "yyyy-MM-ddThh:mm");
+
         // We assume that the are no legs longer than 24 hours
         while (departureDateTime <= currentDateTime) {
             departureDateTime = departureDateTime.addDays(1);
@@ -289,10 +291,35 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     QRegularExpressionMatchIterator intermediateStopsMatchIterator = intermediateStopsRegex.globalMatch(
                                                                          inputFileContents);
 
+    assert(arrivals.size() == destinations.size());
+    int legIndex = 0;
+
+    // Just before the actual startDateTime
+    currentDateTime = startDateTime.addMSecs(-1);
+
     while (intermediateStopsMatchIterator.hasNext()) {
         auto match = intermediateStopsMatchIterator.next();
 
+        auto arrivalDateTime = QDateTime::fromString(startDateString + "T" +
+                                                     match.captured("intermediatearrival"), "yyyy-MM-ddThh:mm");
+
+        // We assume that the are no legs longer than 24 hours
+        while (arrivalDateTime <= currentDateTime) {
+            arrivalDateTime = arrivalDateTime.addDays(1);
+        }
+
+        if (legIndex < arrivals.size() && arrivals[legIndex] < arrivalDateTime) {
+            intermediateStops << destinations[legIndex];
+            ++legIndex;
+        }
+
         intermediateStops << match.captured("intermediatestop");
+    }
+
+    // Actually this should be just the final destination
+    while (legIndex < arrivals.size()) {
+        intermediateStops << destinations[legIndex];
+        ++legIndex;
     }
 
     return {origin, startDateTime, arrivals, departures, destinations, serialsForTrains, transports, intermediateStops};
@@ -326,9 +353,6 @@ QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSeg
     for (const auto &arrival : routeSegments.arrivals) {
         result += arrival.toString() + "\n";
     }
-
-    result += "\n";
-    result += "Intermediate stops: " + routeSegments.intermediateStops.join(" ->\n") + "\n";
 
     return result;
 }
