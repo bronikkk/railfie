@@ -16,6 +16,7 @@ public:
         QStringList destinations;
         QStringList serialsForTrains;
         QStringList transports;
+        QStringList intermediateStops;
     };
 
     static QString toString(const RouteSegments &routeSegments);

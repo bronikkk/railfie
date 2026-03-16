@@ -35,12 +35,12 @@ Railfie::Railfie()
 
     lineEditRouteURL = new QLineEdit{routeTab};
     lineEditRouteURL->setText(routeId);
-    lineEditRouteURL->setGeometry(260, 10, 280, 22);
+    lineEditRouteURL->setGeometry(260, 10, 250, 22);
 
     labelInstructions = new QLabel{routeTab};
     labelInstructions->setText(
-        tr("Click the <Details> pop-up menu below, then right click + Save page"));
-    labelInstructions->setGeometry(550, 10, 450, 22);
+        tr("Click <Details> dropdown → all <X Haltestellen> you need → right click + Save page"));
+    labelInstructions->setGeometry(535, 10, 480, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     webEngineProfile = new QWebEngineProfile{routeTab};
