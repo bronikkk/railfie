@@ -16,6 +16,8 @@ public:
         QStringList destinations;
         QStringList serialsForTrains;
         QStringList transports;
+        QVector<QDateTime> intermediateArrivals;
+        QVector<QDateTime> intermediateDepartures;
         QStringList intermediateStops;
     };
 
