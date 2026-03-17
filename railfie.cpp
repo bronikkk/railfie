@@ -168,15 +168,17 @@ void Railfie::displayRoute()
 
     slideToTheRight();
 
+    // Populate the list view with the intermediate stops in reverse order.
+    // This corresponds to the direction of the route slider.
     QStringList stationsNames;
 
-    stationsNames << routeSegments.origin;
+    stationsNames << routeSegments.origin + " " + routeSegments.startDateTime.toString("hh:mm");
 
-    for (const auto &station : routeSegments.intermediateStops) {
-        stationsNames << station;
+    for (int i = 0; i < routeSegments.intermediateStops.size(); ++i) {
+        stationsNames << routeSegments.intermediateStops[i] + " " +
+                      routeSegments.intermediateDepartures[i].toString("hh:mm");
     }
 
-    // This corresponds to the direction of the route slider
     std::reverse(stationsNames.begin(), stationsNames.end());
     stationsDatabase->setModelWithStringList(stationsNames);
 
