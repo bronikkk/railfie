@@ -135,6 +135,11 @@ QString convertToDateString(QString germanDateString)
     return {};
 }
 
+QDateTime getDateTimeFromString(QString dateString, QString timeString)
+{
+    return QDateTime::fromString(dateString + timeString, "yyyy-MM-ddhh:mm");
+}
+
 } // namespace
 
 RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString fileName)
@@ -204,8 +209,8 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
 
         if (!departureStrings.empty()) {
             startDateString = convertToDateString(match.captured("startdate"));
-            auto startDateTimeString = startDateString + "T" + departureStrings[0];
-            startDateTime = QDateTime::fromString(startDateTimeString, "yyyy-MM-ddThh:mm");
+
+            startDateTime = getDateTimeFromString(startDateString, departureStrings[0]);
 
             while (startDateTime < currentDateTime) {
                 startDateTime = startDateTime.addDays(1);
@@ -213,6 +218,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
         } else {
             // TODO: Do not show the route details if there are no route legs
             startDateTime = currentDateTime.addDays(1);
+
             startDateString = startDateTime.toString("yyyy-MM-dd");
         }
 
@@ -226,8 +232,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     currentDateTime = startDateTime.addMSecs(-1);
 
     for (const auto &arrivalString : std::as_const(arrivalStrings)) {
-        auto arrivalDateTime = QDateTime::fromString(startDateString + "T" + arrivalString,
-                                                     "yyyy-MM-ddThh:mm");
+        auto arrivalDateTime = getDateTimeFromString(startDateString, arrivalString);
 
         // We assume that the are no legs longer than 24 hours
         while (arrivalDateTime <= currentDateTime) {
@@ -246,8 +251,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     currentDateTime = startDateTime.addMSecs(-1);
 
     for (const auto &departureString : std::as_const(departureStrings)) {
-        auto departureDateTime = QDateTime::fromString(startDateString + "T" + departureString,
-                                                       "yyyy-MM-ddThh:mm");
+        auto departureDateTime = getDateTimeFromString(startDateString, departureString);
 
         // We assume that the are no legs longer than 24 hours
         while (departureDateTime <= currentDateTime) {
@@ -309,8 +313,8 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
     while (intermediateStopsMatchIterator.hasNext()) {
         auto match = intermediateStopsMatchIterator.next();
 
-        auto arrivalDateTime = QDateTime::fromString(startDateString + "T" +
-                                                     match.captured("intermediatearrival"), "yyyy-MM-ddThh:mm");
+        auto arrivalDateTime = getDateTimeFromString(startDateString,
+                                                     match.captured("intermediatearrival"));
 
         qint64 addedDaysNumber = 0;
 
@@ -331,8 +335,8 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
             ++legIndex;
         }
 
-        auto departureDateTime = QDateTime::fromString(startDateString + "T" +
-                                                       match.captured("intermediatedeparture"), "yyyy-MM-ddThh:mm");
+        auto departureDateTime = getDateTimeFromString(startDateString,
+                                                       match.captured("intermediatedeparture"));
         departureDateTime = departureDateTime.addDays(addedDaysNumber);
 
         intermediateArrivals.emplaceBack(arrivalDateTime);
