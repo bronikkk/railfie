@@ -65,6 +65,9 @@ Railfie::Railfie()
     labelCurrentTimeValue = new QLabel{sightsTab};
     labelCurrentTimeValue->setGeometry(445, 0, 50, 22);
 
+    stationsDatabase = new StationsDatabase{sightsTab};
+    stationsDatabase->setGeometry(0, 30, 480, 665);
+
     labelDestinationDescription = new QLabel{sightsTab};
     labelDestinationDescription->setGeometry(524, 0, 500, 22);
     labelDestinationDescription->setAlignment(Qt::AlignLeft);
@@ -79,12 +82,12 @@ Railfie::Railfie()
     labelOriginDescription->setGeometry(0, 695, 500, 22);
     labelOriginDescription->setAlignment(Qt::AlignRight);
 
-    stationsDatabase = new StationsDatabase{sightsTab};
-    stationsDatabase->setGeometry(0, 30, 480, 665);
-
     timerSlideToTheRight = new QTimer{sightsTab};
 
     connect(pushButtonCurrentTime, SIGNAL(clicked(bool)), this, SLOT(slideToTheRight()));
+
+    connect(stationsDatabase, SIGNAL(clicked(QModelIndex)), this,
+            SLOT(changeCurrentStation(QModelIndex)));
 
     connect(sliderRoute, SIGNAL(sliderReleased()), this, SLOT(moveSlider()));
     connect(sliderRoute, SIGNAL(sliderReleased()), timerSlideToTheRight, SLOT(stop()));
@@ -128,6 +131,34 @@ Railfie::Railfie()
     updateRoute(routeId);
 
     connect(lineEditRouteURL, SIGNAL(textChanged(QString)), this, SLOT(updateRoute(QString)));
+}
+
+namespace {
+
+static char timeFormat[] = "hh:mm";
+
+} // namespace
+
+void Railfie::changeCurrentStation(QModelIndex modelIndex)
+{
+    timerSlideToTheRight->stop();
+
+    QString stationName = modelIndex.data().toString();
+
+    // This should be exactly hh:mm
+    QString timeForStation = stationName.right(sizeof(timeFormat) - 1);
+
+    auto dateTimeToSet = QDateTime::fromString(routeSliderStartDateTime.toString("yyyy-MM-dd") + "T" +
+                                               timeForStation, "yyyy-MM-ddThh:mm");
+    if (dateTimeToSet < routeSliderStartDateTime) {
+        dateTimeToSet = dateTimeToSet.addDays(1);
+    }
+
+    labelCurrentTimeValue->setText(dateTimeToSet.toString("hh:mm:ss"));
+
+    slideToTheDateTime(dateTimeToSet);
+
+    pushButtonCurrentTime->setEnabled(true);
 }
 
 // TODO: Split this function into several separate functions
@@ -213,14 +244,13 @@ void Railfie::moveSlider()
     pushButtonCurrentTime->setEnabled(true);
 }
 
-void Railfie::slideToTheRight()
+void Railfie::slideToTheDateTime(const QDateTime &dateTime)
 {
-    auto currentDateTime = QDateTime::currentDateTime();
-    const double currentPassedMSecs = currentDateTime.toMSecsSinceEpoch() -
-                                      routeSliderStartDateTime.toMSecsSinceEpoch();
-
     pushButtonCurrentTime->setEnabled(false);
-    labelCurrentTimeValue->setText(currentDateTime.toString("hh:mm:ss"));
+    labelCurrentTimeValue->setText(dateTime.toString("hh:mm:ss"));
+
+    const double currentPassedMSecs = dateTime.toMSecsSinceEpoch() -
+                                      routeSliderStartDateTime.toMSecsSinceEpoch();
 
     if (currentPassedMSecs > 0) {
         auto value = static_cast<int>(currentPassedMSecs * routeSliderSpeedRatio);
@@ -233,6 +263,11 @@ void Railfie::slideToTheRight()
     } else {
         sliderRoute->setValue(0);
     }
+}
+
+void Railfie::slideToTheRight()
+{
+    slideToTheDateTime(QDateTime::currentDateTime());
 
     // The slider will update each second if the route takes <= 24h
     timerSlideToTheRight->start(secondMSecs);

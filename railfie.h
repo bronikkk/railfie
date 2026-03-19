@@ -48,7 +48,11 @@ private:
 
     StationsDatabase *stationsDatabase;
 
+    void slideToTheDateTime(const QDateTime &dateTime);
+
 private slots:
+    void changeCurrentStation(QModelIndex modelIndex);
+
     void displayRoute();
 
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
