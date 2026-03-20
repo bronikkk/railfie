@@ -213,6 +213,9 @@ void Railfie::displayRoute()
     std::reverse(stationsNames.begin(), stationsNames.end());
     stationsDatabase->setModelWithStringList(stationsNames);
 
+    // TODO: Double check memory management for the route polygonal chain
+    routeChain = new RoutePolygonalChain{this, routeSegments.intermediateStops, stationsDatabase};
+
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);
 }

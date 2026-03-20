@@ -15,11 +15,13 @@ SOURCES += \
     main.cpp \
     railfie.cpp \
     routehtmlparser.cpp \
+    routepolygonalchain.cpp \
     stationsdatabase.cpp
 
 HEADERS += \
     railfie.h \
     routehtmlparser.h \
+    routepolygonalchain.h \
     stationsdatabase.h
 
 # Default rules for deployment.
