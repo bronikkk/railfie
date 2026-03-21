@@ -35,12 +35,12 @@ Railfie::Railfie()
 
     lineEditRouteURL = new QLineEdit{routeTab};
     lineEditRouteURL->setText(routeId);
-    lineEditRouteURL->setGeometry(260, 10, 280, 22);
+    lineEditRouteURL->setGeometry(260, 10, 300, 22);
 
     labelInstructions = new QLabel{routeTab};
     labelInstructions->setText(
         tr("Click the <Details> pop-up menu below, then right click + Save page"));
-    labelInstructions->setGeometry(550, 10, 450, 22);
+    labelInstructions->setGeometry(580, 10, 440, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     webEngineProfile = new QWebEngineProfile{routeTab};
@@ -202,19 +202,31 @@ void Railfie::displayRoute()
     // Populate the list view with the intermediate stops in reverse order.
     // This corresponds to the direction of the route slider.
     QStringList stationsNames;
+    QStringList stationsNamesWithTime;
 
-    stationsNames << routeSegments.origin + " " + routeSegments.startDateTime.toString("hh:mm");
+    stationsNames << routeSegments.origin;
+    stationsNamesWithTime << routeSegments.origin + " " + routeSegments.startDateTime.toString("hh:mm");
 
-    for (int i = 0; i < routeSegments.intermediateStops.size(); ++i) {
-        stationsNames << routeSegments.intermediateStops[i] + " " +
-                      routeSegments.intermediateDepartures[i].toString("hh:mm");
+    int i = 0;
+
+    for (const auto &stop : std::as_const(routeSegments.intermediateStops)) {
+        if (stop.isEmpty()) {
+            stationsNames << stop;
+
+            continue;
+        }
+
+        stationsNames << stop;
+        stationsNamesWithTime << stop + " " + routeSegments.intermediateDepartures[i].toString("hh:mm");
+
+        ++i;
     }
 
-    std::reverse(stationsNames.begin(), stationsNames.end());
-    stationsDatabase->setModelWithStringList(stationsNames);
+    std::reverse(stationsNamesWithTime.begin(), stationsNamesWithTime.end());
+    stationsDatabase->setModelWithStringList(stationsNamesWithTime);
 
     // TODO: Double check memory management for the route polygonal chain
-    routeChain = new RoutePolygonalChain{this, routeSegments.intermediateStops, stationsDatabase};
+    routeSpline = new RouteSpline{this, stationsNames, stationsDatabase};
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);

@@ -15,7 +15,7 @@
 #include <QWebEngineView>
 #endif
 
-#include "routepolygonalchain.h"
+#include "routespline.h"
 #include "stationsdatabase.h"
 
 class Railfie : public QTabWidget
@@ -47,7 +47,7 @@ private:
 
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;
 
-    RoutePolygonalChain *routeChain;
+    RouteSpline *routeSpline;
     StationsDatabase *stationsDatabase;
 
     void slideToTheDateTime(const QDateTime &dateTime);

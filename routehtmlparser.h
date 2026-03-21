@@ -18,6 +18,10 @@ public:
         QStringList transports;
         QVector<QDateTime> intermediateArrivals;
         QVector<QDateTime> intermediateDepartures;
+
+        // Contains names of the intermediate stops.
+        // After the last stop of every log, an empty QString is inserted
+        // in order to distuingish between intermediate stops and terminals.
         QStringList intermediateStops;
     };
 

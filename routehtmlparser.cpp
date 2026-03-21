@@ -6,6 +6,8 @@
 
 namespace {
 
+constexpr auto destinationRegexString =
+    R"regex(verbindungs-halt-bahnhofsinfos__name--ankunft.*?>(?<destination>[^<]+))regex";
 constexpr auto intermediateStopsRegexString =
     R"regex(class="_sollzeit" aria-description="Echtzeitinformation">(?<intermediatearrival>[^<]*)</time>[^_]*class="ZeitAnzeige verbindungs-zwischenhalt__abfahrts-zeit">[^_]*class="_sollzeit" aria-description="Echtzeitinformation">(?<intermediatedeparture>[^<]*)</time>[^_]*class="verbindungs-abschnitt-zeile__icons">[^_]*class="verbindungs-zwischenhalt__stop-icon-wrapper">[^_]*class="verbindungs-zwischenhalt__line verbindungs-zwischenhalt__line--ankunft verbindungs-zwischenhalt__line--progress"[^_]*class="verbindungs-zwischenhalt__line verbindungs-zwischenhalt__line--ankunft"[^_]*data-icon="circle_small"[^_]*verbindungs-zwischenhalt__stop-icon"[^_]*class="verbindungs-zwischenhalt__line verbindungs-zwischenhalt__line--abfahrt verbindungs-zwischenhalt__line--progress"[^_]*class="verbindungs-zwischenhalt__line verbindungs-zwischenhalt__line--abfahrt"[^_]*class="verbindungs-abschnitt-zeile__description">[^_]*class="verbindungs-zwischenhalt__name test-zwischenhalt-name">(?<intermediatestop>[^<]*))regex";
 constexpr auto legArrivalRegexString =
@@ -16,10 +18,10 @@ constexpr auto routeOriginRegexString =
     R"regex(class="_name _start">(?<origin>[A-Za-z ]*))regex";
 constexpr auto routeStartDateRegexString =
     R"regex(class="default-reiseloesung-list-page-controls__title-date">[^0-9]*(?<startdate>[^<]*))regex";
-constexpr auto legTrainRegexString =
-    R"regex(transport-text="(?<transportserial>[^"]*)" destination-name="(?<destination>[^"]*)")regex";
 constexpr auto serialRegexString =
     R"regex((?<transport>.*) \((?<serial>.*)\))regex";
+constexpr auto transportSerialRegexString =
+    R"regex(transport-text="(?<transportserial>[^"]*)")regex";
 
 constexpr auto januaryRegexString = R"regex((?<day>.*)\. Jan. (?<year>.*))regex";
 constexpr auto februaryRegexString = R"regex((?<day>.*)\. Feb. (?<year>.*))regex";
@@ -263,19 +265,30 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
         currentDateTime = departureDateTime;
     }
 
-    // Destinations and transports for the route legs
+    // Destinations for the route legs
     QStringList destinations;
+
+    static QRegularExpression destinationRegex{destinationRegexString};
+
+    QRegularExpressionMatchIterator destinationIterator = destinationRegex.globalMatch(
+                                                              inputFileContents);
+
+    while (destinationIterator.hasNext()) {
+        auto match = destinationIterator.next();
+        destinations << match.captured("destination");
+    }
+
+    // Transports for the route legs
     QStringList serialsForTrains;
     QStringList transports;
 
-    static QRegularExpression legTrainRegex{legTrainRegexString};
+    static QRegularExpression transportSerialRegex{transportSerialRegexString};
 
-    QRegularExpressionMatchIterator trainMatchIterator = legTrainRegex.globalMatch(
-                                                             inputFileContents);
+    QRegularExpressionMatchIterator transportSerialIterator = transportSerialRegex.globalMatch(
+                                                                  inputFileContents);
 
-    while (trainMatchIterator.hasNext()) {
-        auto match = trainMatchIterator.next();
-        destinations << match.captured("destination");
+    while (transportSerialIterator.hasNext()) {
+        auto match = transportSerialIterator.next();
 
         auto transportSerial = match.captured("transportserial");
 
@@ -331,6 +344,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
                                                arrivals[legIndex]);
 
             intermediateStops << destinations[legIndex];
+            intermediateStops << QString{};
 
             ++legIndex;
         }
@@ -352,6 +366,7 @@ RouteHTMLParser::RouteSegments RouteHTMLParser::getAllRouteSegments(QString file
                                            arrivals[legIndex]);
 
         intermediateStops << destinations[legIndex];
+        intermediateStops << QString{};
 
         ++legIndex;
     }
@@ -377,16 +392,16 @@ QString RouteHTMLParser::toString(const RouteHTMLParser::RouteSegments &routeSeg
     result += "Serial: " + routeSegments.serialsForTrains.join(" -> ") + "\n";
 
     result += "\n";
-    result += "Arrivals: " + routeSegments.startDateTime.toString("hh:mm") + " -> ";
+    result += "Arrivals: " + routeSegments.startDateTime.toString("hh:mm");
     for (const auto &arrival : routeSegments.intermediateArrivals) {
-        result += arrival.toString("hh:mm") + " -> ";
+        result += " -> " + arrival.toString("hh:mm");
     }
     result += "\n";
 
     result += "\n";
-    result += "Departures: " + routeSegments.startDateTime.toString("hh:mm") + " -> ";
+    result += "Departures: " + routeSegments.startDateTime.toString("hh:mm");
     for (const auto &departure : routeSegments.intermediateDepartures) {
-        result += departure.toString("hh:mm") + " -> ";
+        result += " -> " + departure.toString("hh:mm");
     }
 
     return result;

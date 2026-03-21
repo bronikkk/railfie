@@ -32,8 +32,8 @@ StationsDatabase::StationsDatabase(QWidget *parent, QString filename) : QListVie
         stationsNames << name;
 
         // TODO: Get rid of the hardcoded numbers
-        auto latitude = columns[6].toDouble();
-        auto longitude = columns[7].toDouble();
+        auto longitude = columns[6].toDouble();
+        auto latitude = columns[7].toDouble();
         stations[name] = Data{latitude, longitude};
     }
 
