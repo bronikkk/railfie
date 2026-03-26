@@ -211,6 +211,7 @@ void Railfie::displayRoute()
 
     for (const auto &stop : std::as_const(routeSegments.intermediateStops)) {
         if (stop.isEmpty()) {
+            // This will be required for the spline construction
             stationsNames << stop;
 
             continue;
@@ -226,7 +227,7 @@ void Railfie::displayRoute()
     stationsDatabase->setModelWithStringList(stationsNamesWithTime);
 
     // TODO: Double check memory management for the route polygonal chain
-    routeSpline = new RouteSpline{this, stationsNames, stationsDatabase};
+    routeSpline = new RouteSpline{this, std::move(stationsNames), routeSegments.transports, stationsDatabase};
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);

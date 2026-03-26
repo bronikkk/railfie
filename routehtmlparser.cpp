@@ -21,7 +21,7 @@ constexpr auto routeStartDateRegexString =
 constexpr auto serialRegexString =
     R"regex((?<transport>.*) \((?<serial>.*)\))regex";
 constexpr auto transportSerialRegexString =
-    R"regex(transport-text="(?<transportserial>[^"]*)")regex";
+    R"regex( transport-text="(?<transportserial>[^"]*)")regex";
 
 constexpr auto januaryRegexString = R"regex((?<day>.*)\. Jan. (?<year>.*))regex";
 constexpr auto februaryRegexString = R"regex((?<day>.*)\. Feb. (?<year>.*))regex";

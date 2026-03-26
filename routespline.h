@@ -15,7 +15,8 @@ class RouteSpline : public QLabel
     Q_OBJECT
 
 public:
-    RouteSpline(QWidget *parent, QStringList &stops, const StationsDatabase &stationsDatabase);
+    RouteSpline(QWidget *parent, QStringList &&theStops, const QStringList &transports,
+                const StationsDatabase &stationsDatabase);
 
 private:
     QVector<QVector<QVector2D>> chains;

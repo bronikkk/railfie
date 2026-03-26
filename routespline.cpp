@@ -9,47 +9,62 @@ constexpr auto stepForSplineT = 1 / static_cast<float>(numberOfStepsForSpline);
 
 } // namespace
 
-RouteSpline::RouteSpline(QWidget *parent, QStringList &stops,
+RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringList &transports,
                          const StationsDatabase &stationsDatabase): QLabel{parent}
 {
+    auto transportIterator = transports.begin();
+    if (transportIterator == transports.end()) {
+        return;
+    }
+
     std::vector<QVector2D> points;
 
     QVector<QVector2D> splineValues;
     splineValues.reserve(numberOfStepsForSpline);
 
-    // Origin has to be duplicated for UniformSRpline to work correctly
+    auto stops = std::move(theStops);
+
+    // Origin has to be duplicated for UniformCRSpline to work correctly
     stops.insert(0, stops[0]);
 
     for (const auto &stop : std::as_const(stops)) {
         // This is the last stop of the leg
         if (stop.isEmpty()) {
-            // This can occur for very short routes
-            if (points.size() < minimalPointsNumber) {
-                // Use std::copy
-                for (const auto &point : points) {
-                    splineValues.emplaceBack(point);
-                }
-            } else {
-                // Destination has to be duplicated for UniformSRpline to work correctly
-                points.emplace_back(points.back());
+            // We will skip constructing splines for bus routes and other bus replacement services
+            if (*transportIterator != "Verkehrsmittel" && !transportIterator->startsWith("Bus")) {
+                // This can occur for very short routes
+                if (points.size() < minimalPointsNumber) {
+                    // Use std::copy
+                    for (const auto &point : points) {
+                        splineValues.emplaceBack(point);
+                    }
+                } else {
+                    // Destination has to be duplicated for UniformCRSpline to work correctly
+                    points.emplace_back(points.back());
 
-                UniformCRSpline<QVector2D> spline{points};
+                    UniformCRSpline<QVector2D> spline{points};
 
-                const auto maxT = spline.getMaxT();
+                    const auto maxT = spline.getMaxT();
 
-                float t = 0;
-
-                // The last step is for t == 1
-                for (int i = 0; i < numberOfStepsForSpline + 1; ++i) {
-                    splineValues.emplaceBack(spline.getPosition(t));
+                    float t = 0;
 
                     // The last step is for t == 1
-                    t += stepForSplineT * maxT;
+                    for (int i = 0; i < numberOfStepsForSpline + 1; ++i) {
+                        splineValues.emplaceBack(spline.getPosition(t));
+
+                        // The last step is for t == 1
+                        t += stepForSplineT * maxT;
+                    }
                 }
             }
 
             chains.emplaceBack(splineValues);
             splineValues.clear();
+
+            ++transportIterator;
+            if (transportIterator == transports.end()) {
+                break;
+            }
 
             // This should not happen in production mode
             if (points.empty()) {
