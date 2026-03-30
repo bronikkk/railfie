@@ -14,8 +14,8 @@ public:
     StationsDatabase(QWidget *parent, QString filename = ":/DB_Haltestellen.csv");
 
     struct Data {
-        double latitude = 0;
-        double longitude = 0;
+        float latitude = 0;
+        float longitude = 0;
     };
 
     Data getDataForStation(QString name) const;

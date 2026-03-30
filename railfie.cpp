@@ -199,12 +199,16 @@ void Railfie::displayRoute()
 
     slideToTheRight();
 
+    QStringList stationsNames;
+    QVector<QDateTime> timesForStop;
+
     // Populate the list view with the intermediate stops in reverse order.
     // This corresponds to the direction of the route slider.
-    QStringList stationsNames;
     QStringList stationsNamesWithTime;
 
     stationsNames << routeSegments.origin;
+    timesForStop << routeSegments.startDateTime;
+
     stationsNamesWithTime << routeSegments.origin + " " + routeSegments.startDateTime.toString("hh:mm");
 
     int i = 0;
@@ -213,11 +217,15 @@ void Railfie::displayRoute()
         if (stop.isEmpty()) {
             // This will be required for the spline construction
             stationsNames << stop;
+            timesForStop << QDateTime{};
 
             continue;
         }
 
         stationsNames << stop;
+        // TODO: This should be arrivals for all stops but the origin of the leg
+        timesForStop << routeSegments.intermediateDepartures[i];
+
         stationsNamesWithTime << stop + " " + routeSegments.intermediateDepartures[i].toString("hh:mm");
 
         ++i;
@@ -227,7 +235,7 @@ void Railfie::displayRoute()
     stationsDatabase->setModelWithStringList(stationsNamesWithTime);
 
     // TODO: Double check memory management for the route polygonal chain
-    routeSpline = new RouteSpline{this, std::move(stationsNames), routeSegments.transports, stationsDatabase};
+    routeSpline = new RouteSpline{this, std::move(stationsNames), std::move(timesForStop), routeSegments.transports, stationsDatabase};
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);

@@ -9,7 +9,8 @@ constexpr auto stepForSplineT = 1 / static_cast<float>(numberOfStepsForSpline);
 
 } // namespace
 
-RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringList &transports,
+RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, QVector<QDateTime> &&theDatetimes,
+                         const QStringList &transports,
                          const StationsDatabase &stationsDatabase): QLabel{parent}
 {
     auto transportIterator = transports.begin();
@@ -17,17 +18,24 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringL
         return;
     }
 
-    std::vector<QVector2D> points;
+    std::vector<QPair<QVector2D, QDateTime>> points;
 
-    QVector<QVector2D> splineValues;
+    QVector<QPair<QVector2D, QDateTime>> splineValues;
     splineValues.reserve(numberOfStepsForSpline);
 
+    auto datetimes = std::move(theDatetimes);
     auto stops = std::move(theStops);
+
+    QVector<QPair<QString, QDateTime>> stopsTimes;
+
+    for (int i = 0; i < stops.size(); ++i) {
+        stopsTimes.emplaceBack(stops[i], datetimes[i]);
+    }
 
     // Origin has to be duplicated for UniformCRSpline to work correctly
     stops.insert(0, stops[0]);
 
-    for (const auto &stop : std::as_const(stops)) {
+    for (const auto &[stop, timeForStop] : std::as_const(stopsTimes)) {
         // This is the last stop of the leg
         if (stop.isEmpty()) {
             // We will skip constructing splines for bus routes and other bus replacement services
@@ -42,15 +50,21 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringL
                     // Destination has to be duplicated for UniformCRSpline to work correctly
                     points.emplace_back(points.back());
 
-                    UniformCRSpline<QVector2D> spline{points};
+                    std::vector<QVector2D> pointsLocations;
+                    for (const auto &[location, _] : std::as_const(points)) {
+                        pointsLocations.emplace_back(location);
+                    }
+
+                    UniformCRSpline<QVector2D> spline{pointsLocations};
 
                     const auto maxT = spline.getMaxT();
 
                     float t = 0;
 
                     // The last step is for t == 1
-                    for (int i = 0; i < numberOfStepsForSpline + 1; ++i) {
-                        splineValues.emplaceBack(spline.getPosition(t));
+                    for (int i = 0; i < numberOfStepsForSpline; ++i) {
+                        // TODO: This should be interpolation of the QDateTime for spline
+                        splineValues.emplaceBack(spline.getPosition(t), QDateTime{});
 
                         // The last step is for t == 1
                         t += stepForSplineT * maxT;
@@ -71,7 +85,7 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringL
                 continue;
             }
 
-            // Origin has to be duplicated for UniformSRpline to work correctly
+            // Origin has to be duplicated for UniformCRSpline to work correctly
             points[0] = points.back();
             points.resize(1);
             points.emplace_back(points.back());
@@ -86,6 +100,6 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops, const QStringL
             continue;
         }
 
-        points.emplace_back(stopLocation.latitude, stopLocation.longitude);
+        points.emplace_back(QVector2D{stopLocation.latitude, stopLocation.longitude}, timeForStop);
     }
 }

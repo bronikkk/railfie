@@ -1,7 +1,9 @@
 #ifndef ROUTESPLINE_H
 #define ROUTESPLINE_H
 
+#include <QDateTime>
 #include <QLabel>
+#include <QPair>
 #include <QStringList>
 #include <QVector>
 #include <QVector2D>
@@ -15,11 +17,11 @@ class RouteSpline : public QLabel
     Q_OBJECT
 
 public:
-    RouteSpline(QWidget *parent, QStringList &&theStops, const QStringList &transports,
-                const StationsDatabase &stationsDatabase);
+    RouteSpline(QWidget *parent, QStringList &&theStops, QVector<QDateTime> &&theDatetimes,
+                const QStringList &transports, const StationsDatabase &stationsDatabase);
 
 private:
-    QVector<QVector<QVector2D>> chains;
+    QVector<QVector<QPair<QVector2D, QDateTime>>> chains;
 };
 
 #endif // ROUTESPLINE_H
