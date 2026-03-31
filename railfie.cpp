@@ -200,16 +200,20 @@ void Railfie::displayRoute()
     slideToTheRight();
 
     QStringList stationsNames;
-    QVector<QDateTime> timesForStop;
 
     // Populate the list view with the intermediate stops in reverse order.
     // This corresponds to the direction of the route slider.
     QStringList stationsNamesWithTime;
 
-    stationsNames << routeSegments.origin;
-    timesForStop << routeSegments.startDateTime;
+    QVector<QDateTime> timesForStopArrivals;
+    QVector<QDateTime> timesForStopDepartures;
 
+    stationsNames << routeSegments.origin;
     stationsNamesWithTime << routeSegments.origin + " " + routeSegments.startDateTime.toString("hh:mm");
+
+    timesForStopArrivals << routeSegments.startDateTime;
+    timesForStopDepartures << routeSegments.startDateTime;
+
 
     int i = 0;
 
@@ -217,25 +221,30 @@ void Railfie::displayRoute()
         if (stop.isEmpty()) {
             // This will be required for the spline construction
             stationsNames << stop;
-            timesForStop << QDateTime{};
+
+            // A placeholder between other indeed meaningful values
+            timesForStopArrivals << QDateTime{};
+            timesForStopDepartures << QDateTime{};
 
             continue;
         }
 
         stationsNames << stop;
-        // TODO: This should be arrivals for all stops but the origin of the leg
-        timesForStop << routeSegments.intermediateDepartures[i];
-
         stationsNamesWithTime << stop + " " + routeSegments.intermediateDepartures[i].toString("hh:mm");
+
+        timesForStopArrivals << routeSegments.intermediateArrivals[i];
+        timesForStopDepartures << routeSegments.intermediateDepartures[i];
 
         ++i;
     }
 
+    // Populate the list view with the intermediate stops in reverse order.
+    // This corresponds to the direction of the route slider.
     std::reverse(stationsNamesWithTime.begin(), stationsNamesWithTime.end());
     stationsDatabase->setModelWithStringList(stationsNamesWithTime);
 
     // TODO: Double check memory management for the route polygonal chain
-    routeSpline = new RouteSpline{this, std::move(stationsNames), std::move(timesForStop), routeSegments.transports, stationsDatabase};
+    routeSpline = new RouteSpline{this, std::move(stationsNames), std::move(timesForStopArrivals), std::move(timesForStopDepartures), routeSegments.transports, stationsDatabase};
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);

@@ -17,8 +17,9 @@ class RouteSpline : public QLabel
     Q_OBJECT
 
 public:
-    RouteSpline(QWidget *parent, QStringList &&theStops, QVector<QDateTime> &&theDatetimes,
-                const QStringList &transports, const StationsDatabase &stationsDatabase);
+    RouteSpline(QWidget *parent, QStringList &&theStops, QVector<QDateTime> &&theDatetimesArrivals,
+                QVector<QDateTime> &&theDatetimesDepartures, const QStringList &transports,
+                const StationsDatabase &stationsDatabase);
 
 private:
     QVector<QVector<QPair<QVector2D, QDateTime>>> chains;
