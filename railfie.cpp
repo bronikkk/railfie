@@ -43,7 +43,7 @@ Railfie::Railfie()
     labelInstructions->setGeometry(580, 10, 440, 22);
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
-    webEngineProfile = new QWebEngineProfile{routeTab};
+    webEngineProfile = new QWebEngineProfile{this};
     webEngineProfile->setDownloadPath(temporaryDirectory.path());
 
     connect(webEngineProfile, SIGNAL(downloadRequested(QWebEngineDownloadRequest*)), this,

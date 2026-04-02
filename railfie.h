@@ -41,6 +41,7 @@ private:
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
     QTemporaryDir temporaryDirectory;
+
     QWebEngineProfile *webEngineProfile;
     QWebEngineView *webEngineView;
 #endif
