@@ -47,7 +47,7 @@ private:
 
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;
 
-    RouteSpline *routeSpline;
+    RouteSpline *routeSpline = nullptr;
     StationsDatabase *stationsDatabase;
 
     void slideToTheDateTime(const QDateTime &dateTime);
