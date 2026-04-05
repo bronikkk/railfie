@@ -8,6 +8,7 @@
 #include <QSlider>
 #include <QTabWidget>
 #include <QTimer>
+#include <QVector2D>
 
 #ifdef QT_WEBENGINEWIDGETS_LIB
 #include <QTemporaryDir>
@@ -50,6 +51,10 @@ private:
 
     RouteSpline *routeSpline = nullptr;
     StationsDatabase *stationsDatabase;
+
+    QVector2D currentLocation;
+
+    QVector2D getLocationForDateTime(const QDateTime &dateTime) const;
 
     void slideToTheDateTime(const QDateTime &dateTime);
 

@@ -21,8 +21,11 @@ public:
                 QVector<QDateTime> &&theDatetimesDepartures, const QStringList &transports,
                 const StationsDatabase &stationsDatabase);
 
+    QVector<QPair<QVector2D, QDateTime>> getAllPairs() const;
+
 private:
     QVector<QVector<QPair<QVector2D, QDateTime>>> chains;
+    QVector<QPair<QVector2D, QDateTime>> pairs;
 };
 
 #endif // ROUTESPLINE_H

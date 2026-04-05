@@ -130,4 +130,16 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops,
 
         points.emplace_back(QVector2D{stopLocation.latitude, stopLocation.longitude}, timesForStop);
     }
+
+    // This is an optimized version of the chains, originally vector of vectors
+    for (const auto &chain : std::as_const(chains)) {
+        for (const auto &element : chain) {
+            pairs.emplaceBack(element);
+        }
+    }
+}
+
+QVector<QPair<QVector2D, QDateTime>> RouteSpline::getAllPairs() const
+{
+    return pairs;
 }

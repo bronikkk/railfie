@@ -246,7 +246,12 @@ void Railfie::displayRoute()
     if (routeSpline != nullptr) {
         routeSpline->deleteLater();
     }
-    routeSpline = new RouteSpline{nullptr, std::move(stationsNames), std::move(timesForStopArrivals), std::move(timesForStopDepartures), routeSegments.transports, stationsDatabase};
+    routeSpline = new RouteSpline{nullptr,
+                                  std::move(stationsNames),
+                                  std::move(timesForStopArrivals),
+                                  std::move(timesForStopDepartures),
+                                  routeSegments.transports,
+                                  stationsDatabase};
 
     // Switch to the sightsTab with the updated route as a slider
     setCurrentIndex(1);
@@ -279,10 +284,44 @@ void Railfie::moveSlider()
     pushButtonCurrentTime->setEnabled(true);
 }
 
+QVector2D Railfie::getLocationForDateTime(const QDateTime &dateTime) const
+{
+    QVector2D result;
+
+    if (dateTime < routeSliderStartDateTime) {
+        return result;
+    }
+
+    if (routeSpline == nullptr) {
+        return result;
+    }
+
+    const auto points = routeSpline->getAllPairs();
+    if (points.empty()) {
+        return result;
+    }
+
+    auto iterator = std::upper_bound(points.begin(), points.end(), dateTime,
+    [](const QDateTime & value, const QPair<QVector2D, QDateTime> &pair) {
+        return value < pair.second;
+    });
+    if (iterator == points.end()) {
+        result = points.back().first;
+        return result;
+    }
+
+    // This should give the starting point if the dateTime is prior to the departure of the first leg
+    result = iterator->first;
+
+    return result;
+}
+
 void Railfie::slideToTheDateTime(const QDateTime &dateTime)
 {
     pushButtonCurrentTime->setEnabled(false);
     labelCurrentTimeValue->setText(dateTime.toString("hh:mm:ss"));
+
+    currentLocation = getLocationForDateTime(dateTime);
 
     const double currentPassedMSecs = dateTime.toMSecsSinceEpoch() -
                                       routeSliderStartDateTime.toMSecsSinceEpoch();
