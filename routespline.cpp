@@ -137,6 +137,11 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops,
             pairs.emplaceBack(element);
         }
     }
+
+    std::sort(pairs.begin(), pairs.end(), [](const QPair<QVector2D, QDateTime> &lhs,
+    const QPair<QVector2D, QDateTime> &rhs) {
+        return lhs.second < rhs.second;
+    });
 }
 
 QVector<QPair<QVector2D, QDateTime>> RouteSpline::getAllPairs() const
