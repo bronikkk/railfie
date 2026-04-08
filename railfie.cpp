@@ -2,6 +2,7 @@
 
 #include "routehtmlparser.h"
 
+#include <QIcon>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QSet>
@@ -25,6 +26,7 @@ Railfie::Railfie()
     resize(windowWidth, windowHeight);
     setMinimumSize(windowWidth, windowHeight);
 
+    setWindowIcon(QIcon(":/pics/favicon.ico"));
     setWindowTitle(tr("Railfie"));
 
     routeTab = new QWidget{this};
