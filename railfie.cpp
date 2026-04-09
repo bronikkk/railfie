@@ -74,6 +74,12 @@ Railfie::Railfie()
     labelDestinationDescription->setGeometry(524, 0, 500, 22);
     labelDestinationDescription->setAlignment(Qt::AlignLeft);
 
+    labelMapLink = new QLabel{sightsTab};
+    labelMapLink->setGeometry(524, 350, 500, 22);
+    labelMapLink->setTextFormat(Qt::RichText);
+    labelMapLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    labelMapLink->setOpenExternalLinks(true);
+
     sliderRoute = new QSlider{sightsTab};
     sliderRoute->setGeometry(500, 0, 22, 710);
     sliderRoute->setOrientation(Qt::Orientation::Vertical);
@@ -323,7 +329,14 @@ void Railfie::slideToTheDateTime(const QDateTime &dateTime)
     pushButtonCurrentTime->setEnabled(false);
     labelCurrentTimeValue->setText(dateTime.toString("hh:mm:ss"));
 
+    static const QString linkFormat{"<a href=\"https://www.openstreetmap.org/#map=15/%1/%2\">https://www.openstreetmap.org/#map=15/%1/%2</a>"};
+
     currentLocation = getLocationForDateTime(dateTime);
+
+    if (!currentLocation.isNull()) {
+        labelMapLink->setText(linkFormat.arg(QString::number(currentLocation.x()).replace(",", "."),
+                                             QString::number(currentLocation.y()).replace(",", ".")));
+    }
 
     const double currentPassedMSecs = dateTime.toMSecsSinceEpoch() -
                                       routeSliderStartDateTime.toMSecsSinceEpoch();

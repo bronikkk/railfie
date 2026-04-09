@@ -31,7 +31,7 @@ public:
 private:
     QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns, *checkBoxStadia;
     QLabel *labelCurrentTimeValue, *labelInstructions, *labelRouteURL, *labelRouteDescription,
-           *labelDestinationDescription, *labelOriginDescription;
+           *labelMapLink, *labelDestinationDescription, *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
     QPushButton *pushButtonCurrentTime;
     QSlider *sliderRoute;
