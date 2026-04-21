@@ -31,7 +31,7 @@ public:
 private:
     QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns, *checkBoxStadia;
     QLabel *labelCurrentTimeValue, *labelInstructions, *labelRouteURL, *labelRouteDescription,
-           *labelMapLink, *labelDestinationDescription, *labelOriginDescription;
+           *labelDestinationDescription, *labelOriginDescription;
     QLineEdit *lineEditRouteURL;
     QPushButton *pushButtonCurrentTime;
     QSlider *sliderRoute;
@@ -44,7 +44,7 @@ private:
     QTemporaryDir temporaryDirectory;
 
     QWebEngineProfile *webEngineProfile;
-    QWebEngineView *webEngineView;
+    QWebEngineView *webEngineView, *webEngineXY;
 #endif
 
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;
@@ -52,6 +52,7 @@ private:
     RouteSpline *routeSpline = nullptr;
     StationsDatabase *stationsDatabase;
 
+    QString currentMapLink;
     QVector2D currentLocation;
 
     QVector2D getLocationForDateTime(const QDateTime &dateTime) const;
