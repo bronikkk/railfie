@@ -6510,15 +6510,16 @@ OBJECTID;EVA_NR;DS100;IFOPT;NAME;Verkehr;Laenge;Breite;Betreiber_Name;Betreiber_
 6509;8085006;TBOS;de:08115:6742;Böblingen Südbf;nur DPN;9.010509;48.677236;Zweckverband Schönbuchbahn;;;1003045.2737;6220271.4988
 6510;8085008;TBO Z;de:08115:4713;Böblingen Zimmerschlag;nur DPN;9.03522491;48.6704564;Zweckverband Schönbuchbahn;;;1005796.6362;6219128.6081
 6511;8085009;THZGN;de:08115:6525:1;Holzgerlingen Hülben;nur DPN;9.0085423;48.6445569;Zweckverband Schönbuchbahn;;;1002826.3416;6214763.9401
-10001;;;;Beringen Bad Bf;;8.574443;47.695015;;;;;
-10002;;;;Beringerfeld;;8.592182;47.695372;;;;;
-10003;;;;Herblingen;;8.664289;47.71721;;;;;
-10004;;;;Neuhausen Bad Bf;;8.61171;47.6829;;;;;
-10005;;;;Neunkirch;;8.49481;47.68916;;;;;
-10006;;;;Krzewina Zgorzelecka;;14.939722;51.015694;;;;;
-10007;;;;Schaffhausen;;8.633333;47.700001;;;;;
-10008;;;;Swinoujscie Centrum;;14.234506;53.914247;;;;;
-10009;;;;Thayngen;;8.70323;47.745521;;;;;
-10010;;;;Trasadingen;;8.4374;47.6656;;;;;
+10001;;;;Basel SBB;;7.59;47.547;;;;;
+10002;;;;Beringen Bad Bf;;8.574443;47.695015;;;;;
+10003;;;;Beringerfeld;;8.592182;47.695372;;;;;
+10004;;;;Herblingen;;8.664289;47.71721;;;;;
+10005;;;;Neuhausen Bad Bf;;8.61171;47.6829;;;;;
+10006;;;;Neunkirch;;8.49481;47.68916;;;;;
+10007;;;;Krzewina Zgorzelecka;;14.939722;51.015694;;;;;
+10008;;;;Schaffhausen;;8.633333;47.700001;;;;;
+10009;;;;Swinoujscie Centrum;;14.234506;53.914247;;;;;
+10010;;;;Thayngen;;8.70323;47.745521;;;;;
+10011;;;;Trasadingen;;8.4374;47.6656;;;;;
 10011;;;;Wilchingen-Hallau;;8.46401;47.67949;;;;;
 104609;8010405;BWS;de:11000:900053301:3;Berlin-Wannsee;FV;13.1795275;52.4209723;DB Station und Service AG;566;;1467138.2902;6876603.5082
