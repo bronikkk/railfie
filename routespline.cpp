@@ -144,7 +144,7 @@ RouteSpline::RouteSpline(QWidget *parent, QStringList &&theStops,
     });
 }
 
-QVector<QPair<QVector2D, QDateTime>> RouteSpline::getAllPairs() const
+const QVector<QPair<QVector2D, QDateTime>> &RouteSpline::getAllPairs() const
 {
     return pairs;
 }

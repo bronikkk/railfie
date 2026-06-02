@@ -31,7 +31,7 @@ public:
 private:
     QCheckBox *checkBoxPalaces, *checkBoxPeaks, *checkBoxSigns, *checkBoxStadia;
     QLabel *labelCurrentTimeValue, *labelInstructions, *labelRouteURL, *labelRouteDescription,
-           *labelDestinationDescription, *labelOriginDescription;
+           *labelDestinationDescription, *labelOriginDescription, *labelStreetMap;
     QLineEdit *lineEditRouteURL;
     QPushButton *pushButtonCurrentTime;
     QSlider *sliderRoute;
@@ -44,7 +44,7 @@ private:
     QTemporaryDir temporaryDirectory;
 
     QWebEngineProfile *webEngineProfile;
-    QWebEngineView *webEngineView, *webEngineXY;
+    QWebEngineView *webEngineView;
 #endif
 
     QWidget *configurationTab, *routeTab, *sightsTab, *textTab;

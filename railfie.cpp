@@ -84,12 +84,10 @@ Railfie::Railfie()
     labelOriginDescription->setGeometry(0, 695, 500, 22);
     labelOriginDescription->setAlignment(Qt::AlignRight);
 
-    timerSlideToTheRight = new QTimer{sightsTab};
+    labelStreetMap = new QLabel{sightsTab};
+    labelStreetMap->setGeometry(524, 30, 500, 22);
 
-#ifdef QT_WEBENGINEWIDGETS_LIB
-    webEngineXY = new QWebEngineView{webEngineProfile, sightsTab};
-    webEngineXY->setGeometry(524, 30, 500, 660);
-#endif
+    timerSlideToTheRight = new QTimer{sightsTab};
 
     connect(pushButtonCurrentTime, SIGNAL(clicked(bool)), this, SLOT(slideToTheRight()));
 
@@ -295,11 +293,11 @@ QVector2D Railfie::getLocationForDateTime(const QDateTime &dateTime) const
 {
     QVector2D result;
 
-    if (dateTime < routeSliderStartDateTime) {
+    if (routeSpline == nullptr) {
         return result;
     }
 
-    if (routeSpline == nullptr) {
+    if (dateTime < routeSliderStartDateTime) {
         return result;
     }
 
@@ -334,9 +332,8 @@ void Railfie::slideToTheDateTime(const QDateTime &dateTime)
     currentLocation = getLocationForDateTime(dateTime);
 
     if (!currentLocation.isNull() && (oldLocation.isNull() || (oldLocation != currentLocation))) {
-        webEngineXY->load(linkFormat.arg(QString::number(currentLocation.x()).replace(",", "."),
-                                         QString::number(currentLocation.y()).replace(",", ".")));
-        webEngineXY->show();
+        labelStreetMap->setText(linkFormat.arg(QString::number(currentLocation.x()).replace(",", "."),
+                                               QString::number(currentLocation.y()).replace(",", ".")));
     }
 
     const double currentPassedMSecs = dateTime.toMSecsSinceEpoch() -
