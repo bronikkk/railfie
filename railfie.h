@@ -64,6 +64,8 @@ private slots:
 
     void displayRoute();
 
+    void displaySights(QVector2D centerPoint, QString overpassNode);
+
     void downloadWebPage(QWebEngineDownloadRequest *downloadRequest);
 
     void moveSlider();

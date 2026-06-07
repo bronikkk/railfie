@@ -2,11 +2,18 @@
 
 #include "routehtmlparser.h"
 
+#include <QEventLoop>
 #include <QIcon>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QSet>
 #include <QThread>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequestFactory>
 
 namespace {
 
@@ -262,6 +269,85 @@ void Railfie::displayRoute()
     setCurrentIndex(1);
 }
 
+namespace {
+
+auto radiusInDegreesForLatitude = 0.025;
+auto radiusInDegreesForLongitude = 0.05;
+
+QString getBoundingBoxString(QVector2D centerPoint)
+{
+    // OSM format of X and Y
+    auto latitude = centerPoint.x();
+    auto longitude = centerPoint.y();
+
+    return QString{"(%1,%2,%3,%4)"}.arg(QString::number(longitude -
+                                                        radiusInDegreesForLongitude).replace(",",
+                                                                                             ".")).arg(QString::number(latitude - radiusInDegreesForLatitude).replace(",",
+                                                                                                       ".")).arg(QString::number(longitude + radiusInDegreesForLongitude).replace(",",
+                                                                                                                 ".")).arg(QString::number(latitude + radiusInDegreesForLatitude).replace(",", "."));
+}
+
+} // namespace
+
+void Railfie::displaySights(QVector2D centerPoint, QString overpassNode)
+{
+    const auto overpassQuery = QString{R"(
+[out:json];
+%1["name"]%2;
+out;
+    )"}.arg(overpassNode).arg(getBoundingBoxString(centerPoint));
+    QByteArray postData = "data=" + QUrl::toPercentEncoding(overpassQuery);
+
+    static const QString APIString{"https://overpass-api.de/api/interpreter"};
+
+    QNetworkRequest request{QUrl{APIString}};
+    request.setHeader(
+        QNetworkRequest::ContentTypeHeader,
+        "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::UserAgentHeader, "Railfie");
+
+    QNetworkAccessManager networkAccessManager;
+    QNetworkReply *reply = networkAccessManager.post(request, postData);
+
+    QEventLoop loop;
+    loop.connect(&networkAccessManager, SIGNAL(finished(QNetworkReply*)), SLOT(quit()));
+    loop.exec();
+
+    if (reply->error()) {
+        return;
+    }
+
+    QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
+
+    QJsonObject rootObject = document.object();
+
+    if (rootObject.isEmpty()) {
+        return;
+    }
+
+    auto elementsRecords = rootObject["elements"];
+
+    if (!elementsRecords.isArray()) {
+        return;
+    }
+
+    const auto elementsArray = elementsRecords.toArray();
+
+    for (const auto &element : elementsArray) {
+        auto elementTags = element[QString("tags")];
+
+        if (!elementTags.isObject()) {
+            continue;
+        }
+
+        auto nameTag = elementTags[QString("name")];
+
+        if (!nameTag.isString()) {
+            continue;
+        }
+    }
+}
+
 #ifdef QT_WEBENGINEWIDGETS_LIB
 void Railfie::downloadWebPage(QWebEngineDownloadRequest *downloadRequest)
 {
@@ -334,6 +420,8 @@ void Railfie::slideToTheDateTime(const QDateTime &dateTime)
     if (!currentLocation.isNull() && (oldLocation.isNull() || (oldLocation != currentLocation))) {
         labelStreetMap->setText(linkFormat.arg(QString::number(currentLocation.x()).replace(",", "."),
                                                QString::number(currentLocation.y()).replace(",", ".")));
+
+        displaySights(currentLocation, R"(way["leisure"="stadium"])");
     }
 
     const double currentPassedMSecs = dateTime.toMSecsSinceEpoch() -
